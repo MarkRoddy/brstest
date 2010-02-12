@@ -1,0 +1,39 @@
+-*- outline -*-
+
+   
+* Future Features
+
+** Specify halt on error/failure 
+   Let users specify by their choosen test execution context
+     if errors should be recorded or automatically fail into
+     the debugger
+
+** Print Methods on test runner
+   Now has bare print commands that can't be overridden
+   Should delegate to a method which can be patched
+
+** Timing
+   Add calculation and printing of the time it to complete
+     unit test execution
+
+** Specified test discovery
+   Execute a test fixture specified by some string 
+     identifier, probably just the fixture name 
+   Also needs a convience method for use to call
+     with the test name
+ 
+** Test loader Discover / Load Files 
+   Must be able to handle loading scripts not in 
+     the 'pkg:/source' directory as these will not
+     be in the global name space by default
+
+** Asserts
+
+*** Add new asserts
+   assertIn(item, iterable) - specified item is found in the enumerable object
+   assertCausesError(callable, error_code) - calling specified method results in the specified error number
+
+*** Upgrade existing asserts
+   Add support for 'types' in assertEqual and assertNotEqual (list, array, hash)
+
+
