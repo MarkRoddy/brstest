@@ -48,7 +48,7 @@ brstest:
 	@echo "  >> creating application zip $(ZIPREL)/$(APPNAME).zip"	
 	@if [ -d $(SOURCEREL)/$(APPNAME) ]; \
 	then \
-		(zip -9 -r "$(ZIPREL)/$(APPNAME).zip" .); \
+		(zip -9 -r "$(ZIPREL)/$(APPNAME).zip" . -x \*.svn\* ); \
 		(zip -d "$(ZIPREL)/$(APPNAME).zip" Makefile); \
 	else \
 		echo "Source for $(APPNAME) not found at $(SOURCEREL)/$(APPNAME)"; \
