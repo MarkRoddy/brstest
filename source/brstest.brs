@@ -35,13 +35,9 @@
 
 
 
-Sub BrsTestMain()
+Sub BrsTestMain(TestFilePrefix="Test" as string, TestMethodPrefix="test" as string, TestDirectory="pkg:/source" as string)
     'Run all test fixtures found in the package using
     'the standard naming conventions
-    RunBrsTests("Test", "test", "pkg:/source")
-End Sub
-
-Sub RunBrsTests(TestFilePrefix as string, TestMethodPrefix as string, TestDirectory as string)
     'Discovers and runs test fixtures based upon the supplied arguments
     tl = brstNewTestLoader(TestFilePrefix, TestMethodPrefix)
     suite=tl.suiteFromDirectory(TestDirectory)
