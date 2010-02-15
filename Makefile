@@ -18,8 +18,9 @@
 PKGREL = ../packages
 ZIPREL = ../zips
 SOURCEREL = ..
+DISTREL = ../dist
 APPNAME = brstest
-VERSION = 1.0
+VERSION = 0.1.0
 
 .PHONY: all brstest
 
@@ -58,6 +59,17 @@ brstest:
 install: brstest
 	@echo "Installing $(APPNAME) to host $(ROKU_DEV_TARGET)"
 	@curl -s -S -F "mysubmit=Install" -F "archive=@$(ZIPREL)/$(APPNAME).zip" -F "passwd=" http://$(ROKU_DEV_TARGET)/plugin_install | grep "<font color" | sed "s/<font color=\"red\">//"
+
+dist: brstest
+	@echo "Creating distributables for $(APPNAME)"
+	@echo "  >> creating destination directory $(DISTREL)"	
+	@if [ ! -d $(DISTREL) ]; \
+	then \
+		mkdir -p $(DISTREL); \
+	fi
+	cp "$(ZIPREL)/$(APPNAME).zip" "$(DISTREL)/$(APPNAME)_v$(VERSION).zip"
+	zip -u "$(DISTREL)/$(APPNAME)_v$(VERSION).zip" Makefile
+	cp source/brstest.brs "$(DISTREL)/brstest_v$(VERSION).brs"
 
 pkg: install
 	@echo "*** Creating Package ***"
