@@ -239,5 +239,126 @@ Sub testTestCase_assertNotEqual_IntAndFloat(t as object)
     assertNotEqualMessageForEquals(t, i, f, expected_msg)
 End Sub
 
+Sub testTestCase_ValueTostring_Integer(t as object)
+    'Can convert an integer using the ValueToString method
+    i = 4
+    expected = "4"
+    actual = t.ValueToString(i)
+    t.assertEqual(expected, actual)
+End Sub
 
+Sub testTestCase_ValueTostring_Integer_Negative(t as object)
+    'Can convert a negative integer using the ValueToString method
+    i = -4
+    expected = "-4"
+    actual = t.ValueToString(i)
+    t.assertEqual(expected, actual)
+End Sub
+
+Sub testTestCase_ValueTostring_Float(t as Object)
+    'Can convert a float value using ValueToString method
+    f = 4.3
+    expected = "4.3"
+    actual = t.ValueToString(f)
+    t.assertEqual(expected, actual)
+End Sub
+
+Sub testTestCase_ValueTostring_Float_Negative(t as Object)
+    'Can convert a negative float value using ValueToString method
+    f = -4.3
+    expected = "-4.3"
+    actual = t.ValueToString(f)
+    t.assertEqual(expected, actual)
+End Sub
+
+Sub testTestCase_ValueTostring_String(t as object)
+    'Can pass a string to the ValueToString method
+    s = "Foo Bar"
+    expected = "Foo Bar"
+    actual = t.ValueToString(s)
+    t.assertEqual(expected, actual)
+End Sub
+
+Sub testTestCase_ValueTostring_Bool_True(t as object)
+    'Convert a True value w/the ValueToString method
+    b = True
+    expected = "True"
+    actual = t.ValueToString(b)
+    t.assertEqual(expected, actual)
+End Sub
+
+Sub testTestCase_ValueTostring_Bool_False(t as object)
+    'Convert a False value w/the ValueToString method
+    b = False
+    expected = "False"
+    actual = t.ValueToString(b)
+    t.assertEqual(expected, actual)
+End Sub
+
+Sub testTestCase_ValueTostring_roInvalid(t as Object)
+    'Convert the roInvalid constant to a string
+    invalid_val = CreateObject("roInvalid")
+    expected = "roInvalid"
+    actual = t.ValueToString(invalid_val)
+    t.assertEqual(expected, actual)
+End Sub
+
+Sub testTestCase_ValueTostring_roList_Empty(t as Object)
+    'Convert an empty roList to a string w/the ValueToString method
+    l = CreateObject("roList")
+    expected = "->/"
+    actual = t.ValueToString(l)
+    t.assertEqual(expected, actual)
+End Sub
+
+Sub testTestCase_ValueTostring_roList_Ints(t as Object)
+    'Convert roList of ints w/the ValueToString method
+    l = CreateObject("roList")
+    l.AddTail(1)
+    l.AddTail(2)
+    l.AddTail(3)
+    expected = "1 -> 2 -> 3 -> /"
+    actual = t.ValueToString(l)
+    t.assertEqual(expected, actual)
+End Sub
+
+Sub testTestCase_ValueTostring_roAssociativeArray_Empty(t as object)
+    'Appropriate converstion of an empty associative array
+    aa = {}
+    expected = "{  }"
+    actual = t.ValueToString(aa)
+    t.assertEqual(expected, actual)
+End Sub
+
+Sub testTestCase_ValueTostring_roAssociativeArray_HandlesInts(t as object)
+    'Int values in an associative array are converted
+    aa = {Foo:1, Bar:2}
+    expected = "{ bar : 2, foo : 1 }"
+    actual = t.ValueToString(aa)
+    t.assertEqual(expected, actual)
+End Sub
+
+' Sub testTestCase_ValueTostring_roArray_Empty(t as object) 
+'     'Proper conversion of an empty roArray object
+'     array = []
+'     expected = "[ ]"
+'     actual = t.ValueToString(array)
+'     t.assertEqual(expected, actual)
+' End Sub
+
+' Sub testTestCase_ValueTostring_roArray_Ints(t as object)
+'     'Conversion of roArray with int entries
+'     array = [1,2,3]
+'     expected = "[ 1, 2, 3 ]"
+'     actual = t.ValueToString(array)
+'     t.assertEqual(expected, actual)
+' End Sub
+
+' Sub testTestCase_ValueTostring_roArray_NestedArrays(t as object)
+'     'Convert an array which has another array as one of its elements
+'     array = [1,[2,3],4]
+'     expected = "[ 1, [ 2, 4], 3 ]"
+'     actual = t.ValueToString(array)
+'     t.assertEqual(expected, actual)
+' End Sub
 

@@ -161,6 +161,7 @@ Sub brstTcInit(Fixture as object)
     m._Fixture = Fixture
     'this will be constructor argument in future version
     m._PropegateErrors = false 
+    'm._PropegateErrors = true
 
     'Assertion methods which determine test failure
     m.fail = brstTcFail
@@ -175,6 +176,27 @@ Sub brstTcInit(Fixture as object)
     m.shortDescription = brstTcShortDescription
     m.toString = brstTcToString
     m.run = brstTcRun
+
+    'String Casting Functionality
+    m.valueToString = brstTcValueToString
+    m.assocArrayToString = brstTcAssocArrayToString
+    m.integerToString = brstTcIntegerToString
+    m.floatToString = brstTcFloatToString
+    m.stringToString = brstTcStringToString
+    m.booleanToString = brstTcBooleanToString
+    m.roListToString = brstTcRoListToString
+    m.roArrayToString = brstTcRoArrayToString
+    m.roInvalidToString = brstTcRoInvalidToString
+
+    m._StrConverters = {}
+    m._StrConverters["roInt"] = "integerToString"
+    m._StrConverters["roFloat"] = "floatToString"
+    m._StrConverters["roString"] = "stringToString"
+    m._StrConverters["roBoolean"] = "booleanToString"
+    m._StrConverters["roList"] = "roListToString"
+    m._StrConverters["roAssociativeArray"] = "assocArrayToString"
+    m._StrConverters["roArray"] = "roArrayToString"
+    m._StrConverters["roInvalid"] = "roInvalidToString"
 
 End Sub
 
@@ -300,6 +322,110 @@ Sub brstTcAssertNotEqual(first as object, second as object)
         m.fail(first_as_string + " == " + second_as_string)
     End If
 End Sub
+
+'String conversion functions used to coerce types so that can
+'be outputted upon test failure
+Function brstTcValueToString(SrcValue as Object) as String
+    'Converts an arbitrary value to a string representation
+    value_type = type(SrcValue)
+    if m._StrConverters.DoesExist(value_type) then 
+        method_name = m._StrConverters[value_type]
+        result = "I DID NOT PROPERLY RETURN FROM EVAL"
+        eval("result = m." + method_name + "(SrcValue)")
+        return result
+    else
+        return "Unknown type: " + value_type
+    end if
+End Function
+
+Function brstTcIntegerToString(SrcInt as Object) as String
+    'Converts an roInt to a string
+    return SrcInt.ToStr()
+End Function
+
+Function brstTcFloatToString(SrcFloat as Object) as String
+    'Converts an roFloat object to a string
+    return Box(Str(SrcFloat.GetFloat())).Trim()
+End Function
+
+Function brstTcStringToString(SrcStr as Object) as String
+    'Convert an roString object to a string
+    return SrcStr.GetString()
+    'Exists so that any object can be passed to the ValueToString()
+    'method, otherwise doesn't serve any real purpose
+End Function
+
+Function brstTcBooleanToString(SrcBool as Object) as String
+    'Convert roBoolean value to string
+    if SrcBool then
+        return "True"
+    else
+        return "False"
+    end if
+End Function
+
+Function brstTcRoInvalidToString(InvalidObj as Object) as String
+    'Convert the roInvalid global into a string
+    return "roInvalid"
+End Function
+
+Function brstTcRoListToString(SrcList as Object) as String
+    'Convert an roList object to a string
+    if SrcList.IsEmpty() then
+       return "->/"
+    end if
+    strvalue = ""
+    for each i in SrcList
+        strvalue = strvalue + m.ValueToString(i)
+        strvalue = strvalue + " -> "
+    end for
+    strvalue = strvalue + "/"
+    return strvalue
+End Function
+
+Function brstTcAssocArrayToString(SrcAssocArray as Object) as String
+    'Converts an roAssociativeArray to a string representation
+    strvalue = "{ "
+    first_entry = True
+    for each k in SrcAssocArray
+        if not first_entry then
+            strvalue = strvalue + ", "
+        else
+            first_entry = False
+        end if
+        strvalue = strvalue + k
+        strvalue = strvalue + " : "
+        strvalue = strvalue + m.ValueToString(SrcAssocArray[k])
+    end for
+    strvalue = strvalue + " }"
+    return strvalue
+    return "{}"
+End Function
+
+Function brstTcRoArrayToString(SrcArray as Object, DisplayTrailingInvalid=False as boolean) as String
+    'Convert an roArray to a string representation
+    strvalue = "["
+    first_entry = True
+
+    'Purposely not using ifEnum interface for the roArray.
+    'Bug in Roku firmware causes crash when 
+    'iterating over array that has an uninitialized
+    'element.  See discussion here:
+    'http://forums.roku.com/viewtopic.php?f=34&t=25979
+    array_length = SrcArray.Count()
+    for i = 0 to array_length - 1 step 1
+        entry = SrcArray[i]
+        if first_entry then
+            first_entry = False
+        else
+            strvalue = strvalue + ","
+        end if
+        strvalue = strvalue + " " + m.ValueToString(entry)
+    end for
+    strvalue = strvalue + " ]"
+    return strvalue
+End Function
+
 'End Class TestCase
 '==================
 
