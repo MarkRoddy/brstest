@@ -198,6 +198,26 @@ Sub brstTcInit(Fixture as object)
     m._StrConverters["roArray"] = "roArrayToString"
     m._StrConverters["roInvalid"] = "roInvalidToString"
 
+
+    'Type Comparison Functionality
+    m.eqValues = brstTcEqValues
+    m.eqIntegers = brstTcEqInteger
+    m.eqFloats = brstTcEqFloat
+    m.eqStrings = brstTcEqString
+    m.eqBools = brstTcEqBool
+    m.eqLists = brstTcEqList
+    m.eqAssocArrays = brstTcEqAssocArray
+    m.eqArrays = brstTcEqArray
+
+    m._TypeComparers = {}
+    m._TypeComparers["roInt"] = "eqIntegers"
+    m._TypeComparers["roFloat"] = "eqFloats"
+    m._TypeComparers["roString"] = "eqStrings"
+    m._TypeComparers["roBoolean"] = "eqBools"
+    m._TypeComparers["roList"] = "eqLists"
+    m._TypeComparers["roAssociativeArray"] = "eqAssocArrays"
+    m._TypeComparers["roArray"] = "eqArrays"
+
 End Sub
 
 Function brstTcCountTestCases() as Integer
@@ -425,6 +445,104 @@ Function brstTcRoArrayToString(SrcArray as Object, DisplayTrailingInvalid=False 
     strvalue = strvalue + " ]"
     return strvalue
 End Function
+
+Function brstTcEqValues(Value1 as Object, Value2 as Object) as Boolean
+    'Compare two arbtrary values to eachother
+    if type(Value1) <> type(Value2) then
+        return False
+    else
+        valtype = type(Value1)
+        if m._TypeComparers.DoesExist(valtype) then
+            method_name = m._TypeComparers[valtype]
+            result = False
+            eval("result = m." + method_name + "(Value1, Value2)")
+            return result
+        else
+            'I don't Reconize this type
+            return False
+        end if
+    end if
+End Function 
+
+Function brstTcEqInteger(Value1 as Object, Value2 as Object) as Boolean
+    'Compare to integer objects for equality
+    return Value1 = Value2
+End Function 
+
+Function brstTcEqFloat(Value1 as Object, Value2 as Object) as Boolean
+    'Compare to float objects for equality
+    return Value1 = Value2
+End Function 
+
+Function brstTcEqString(Value1 as Object, Value2 as Object) as Boolean
+    'Compare to string objects for equality
+    return Value1 = Value2
+End Function 
+
+Function brstTcEqBool(Value1 as Object, Value2 as Object) as Boolean
+    'Compare to boolean objects for equality
+    return Value1 = Value2
+End Function 
+
+Function brstTcEqList(Value1 as Object, Value2 as Object) as Boolean
+    'Compare to roList objects for equality
+    l1 = Value1.Count()
+    l2 = Value2.Count()
+    if l1 <> l2 then
+        return False
+    else
+        for i = 0 to l1 - 1 step 1
+            v1 = Value1[i]
+            v2 = Value2[i]
+            if not m.eqValues(v1, v2) then
+                return False
+            end if
+        end for
+        return True
+    end if
+End Function 
+
+Function brstTcEqAssocArray(Value1 as Object, Value2 as Object) as Boolean
+    'Compare to roAssociativeArray objects for equality
+    len1 = 0
+    for each k in Value1
+        len1 = len1 + 1
+        if not Value2.DoesExist(k) then
+            return False
+        else
+            v1 = Value1[k]
+            v2 = Value2[k]
+            if not m.eqValues(v1, v2) then
+                return False
+            end if
+        end if
+    end for
+    len2 = AssocArrayCount(Value2)
+    if len1 <> len2 then
+        return False
+    else
+        return True
+    end if
+End Function 
+
+Function brstTcEqArray(Value1 as Object, Value2 as Object) as Boolean
+    'Compare to roArray objects for equality
+    l1 = Value1.Count()
+    l2 = Value2.Count()
+    if not l1 = l2 then
+        return False
+    else
+        for i = 0 to l1 - 1 step 1
+            v1 = Value1[i]
+            v2 = Value2[i]
+            if not m.eqValues(v1, v2) then
+                return False
+            end if
+        end for
+        return True
+    end if
+End Function 
+
 
 'End Class TestCase
 '==================
@@ -853,7 +971,15 @@ err_map.AddReplace("Function Call Operator ( ) attempted on non-function.", &he0
     return "Unknown Error: " + str(err_code)
 End Function
 
-
-
+'Have posted to the Roku sdk message board regarding the need for this function,
+'retaining for the time being to determine if it's necessary
+Function AssocArrayCount(aa as object) as Integer
+    'Returns the number of entries in an roAssociativeArray
+    i = 0
+    for each k in aa
+        i = i + 1
+    end for
+    return i
+End Function
 
 

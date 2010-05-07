@@ -338,6 +338,14 @@ Sub testTestCase_ValueTostring_roAssociativeArray_HandlesInts(t as object)
     t.assertEqual(expected, actual)
 End Sub
 
+Sub testTestCase_ValueTostring_roAssociativeArray_NestedWithAnotherAA(t as object)
+    'roAssociativeArray with value that is another roAssociativeArray
+    aa = {Foo:1, Bar:{Baz:4} }
+    expected = "{ bar : { baz : 4 }, foo : 1 }"
+    actual = t.ValueToString(aa)
+    t.assertEqual(expected, actual)
+End Sub
+
 ' Sub testTestCase_ValueTostring_roArray_Empty(t as object) 
 '     'Proper conversion of an empty roArray object
 '     array = []
@@ -345,20 +353,198 @@ End Sub
 '     actual = t.ValueToString(array)
 '     t.assertEqual(expected, actual)
 ' End Sub
+'
+'Sub testTestCase_ValueTostring_roArray_Ints(t as object)
+'    'Conversion of roArray with int entries
+'    array = [1,2,3]
+'    expected = "[ 1, 2, 3 ]"
+'    actual = t.ValueToString(array)
+'    t.assertEqual(expected, actual)
+'End Sub
+'
+'Sub testTestCase_ValueTostring_roArray_NestedArrays(t as object)
+'    'Convert an array which has another array as one of its elements
+'    array = [1,[2,3],4]
+'    expected = "[ 1, [ 2, 3 ], 4 ]"
+'    actual = t.ValueToString(array)
+'    t.assertEqual(expected, actual)
+'End Sub
 
-' Sub testTestCase_ValueTostring_roArray_Ints(t as object)
-'     'Conversion of roArray with int entries
-'     array = [1,2,3]
-'     expected = "[ 1, 2, 3 ]"
-'     actual = t.ValueToString(array)
-'     t.assertEqual(expected, actual)
-' End Sub
+Sub testTestCase_EqValues_Integers_AreEqual(t as object)
+    'True if two integer values are equal
+    x = 4
+    y = 4
+    result = t.eqValues(x, y)
+    t.assertTrue(result)
+End Sub
 
-' Sub testTestCase_ValueTostring_roArray_NestedArrays(t as object)
-'     'Convert an array which has another array as one of its elements
-'     array = [1,[2,3],4]
-'     expected = "[ 1, [ 2, 4], 3 ]"
-'     actual = t.ValueToString(array)
-'     t.assertEqual(expected, actual)
-' End Sub
+Sub testTestCase_EqValues_Integers_NotEqual(t as object)
+    'False if two integer values are not equal
+    x = 4
+    y = 5
+    result = t.eqValues(x, y)
+    t.assertFalse(result)
+End Sub
+
+Sub testTestCase_EqValues_Floats_AreEqual(t as object)
+    'True if two float values are equal
+    x = 4.5
+    y = 4.5
+    result = t.eqValues(x, y)
+    t.assertTrue(result)
+End Sub
+
+Sub testTestCase_EqValues_Floats_NotEqual(t as object)
+    'False if two float values are not equal
+    x = 4.5
+    y = 5.5
+    result = t.eqValues(x, y)
+    t.assertFalse(result)
+End Sub
+
+Sub testTestCase_EqValues_Strings_AreEqual(t as object)
+    'True if two string values are equal
+    x = "Foo Bar"
+    y = "Foo Bar"
+    result = t.eqValues(x, y)
+    t.assertTrue(result)
+End Sub
+
+Sub testTestCase_EqValues_Strings_NotEqual(t as object)
+    'False if two string values are not equal
+    x = "Foo Bar"
+    y = "Foo Bar Baz"
+    result = t.eqValues(x, y)
+    t.assertFalse(result)
+End Sub
+
+Sub testTestCase_EqValues_Bools_AreEqual_True(t as object)
+    'True if two bool values are equal
+    x = True
+    y = True
+    result = t.eqValues(x, y)
+    t.assertTrue(result)
+End Sub
+
+Sub testTestCase_EqValues_Bools_AreEqual_False(t as object)
+    'True if two bool values are equal
+    x = False
+    y = False
+    result = t.eqValues(x, y)
+    t.assertTrue(result)
+End Sub
+
+Sub testTestCase_EqValues_Bools_NotEqual(t as object)
+    'False if two bool values are not equal
+    x = True
+    y = False
+    result = t.eqValues(x, y)
+    t.assertFalse(result)
+End Sub
+
+'Sub testTestCase_EqValues_Lists_AreEqual(t as object)
+'    'True if two list values are equal
+'    x = CreateObject("roList")
+'    x.AddTail(1)
+'    x.AddTail(2)
+'    x.AddTail(3)
+'    y = CreateObject("roList")
+'    y.AddTail(1)
+'    y.AddTail(2)
+'    y.AddTail(3)
+'    result = t.eqValues(x, y)
+'    t.assertTrue(result)
+'End Sub
+
+Sub testTestCase_EqValues_Lists_NotEqual_DifferentLength(t as object)
+    'False if two list values are not equal due to having a different length
+    x = CreateObject("roList")
+    x.AddTail(1)
+    x.AddTail(2)
+    x.AddTail(3)
+    y = CreateObject("roList")
+    y.AddTail(1)
+    y.AddTail(2)
+    result = t.eqValues(x, y)
+    t.assertFalse(result)
+End Sub
+
+'Sub testTestCase_EqValues_Lists_NotEqual_DifferentValues(t as object)
+'    'False if two list are the same length, but have different entries
+'    x = CreateObject("roList")
+'    x.AddTail(1)
+'    x.AddTail(2)
+'    x.AddTail(3)
+'    y = CreateObject("roList")
+'    y.AddTail(1)
+'    y.AddTail(2)
+'    y.AddTail(12)
+'    result = t.eqValues(x, y)
+'    t.assertFalse(result)
+'End Sub
+
+Sub testTestCase_EqValues_AssocArray_AreEqual(t as object)
+    'True if two roAssociativeArrays have the same keys and point to equal values
+    x = {Foo:1, Bar:2}
+    y = {Foo:1, Bar:2}
+    result = t.eqValues(x, y)
+    t.assertTrue(result)
+End Sub
+
+Sub testTestCase_EqValues_AssocArray_NotEqual_DifferentValues(t as object)
+    'False if two roAssociativeArrays have the same keys and point to different values
+    x = {Foo:1, Bar:2}
+    y = {Foo:1, Bar:5}
+    result = t.eqValues(x, y)
+    t.assertFalse(result)
+End Sub
+
+Sub testTestCase_EqValues_AssocArray_NotEqual_FirstHasMoreKeys(t as object)
+    'False if first of two roAssociativeArrays has more keys
+    x = {Foo:1, Bar:2, Baz:4}
+    y = {Foo:1, Bar:2}
+    result = t.eqValues(x, y)
+    t.assertFalse(result)
+End Sub
+
+Sub testTestCase_EqValues_AssocArray_NotEqual_SecondHasMoreKeys(t as object)
+    'False if second of two roAssociativeArrays has more keys
+    x = {Foo:1, Bar:2}
+    y = {Foo:1, Bar:2, Baz:4}
+    result = t.eqValues(x, y)
+    t.assertFalse(result)
+End Sub
+
+Sub testTestCase_EqValues_AssocArray_NotEqual_DiffKeysSameCount(t as object)
+    'False if two roAssociativeArrays have the same number keys but different sets of keys
+    x = {Foo:1, Bar:2}
+    y = {Foo:1, Baz:2}
+    result = t.eqValues(x, y)
+    t.assertFalse(result)
+End Sub
+
+Sub testTestCase_EqValues_Array_NotEqual_FirstIsLonger(t as object)
+    'False if the first of two roArrays is longer
+    x = [1,2,3]
+    y = [1,2]
+    result = t.eqValues(x, y)
+    t.assertFalse(result)
+End Sub
+
+Sub testTestCase_EqValues_Array_NotEqual_SecondIsLonger(t as object)
+    'False if the second of two roArrays is longer
+    x = [1,2]
+    y = [1,2,4]
+    result = t.eqValues(x, y)
+    t.assertFalse(result)
+End Sub
+
+Sub testTestCase_EqValues_Array_NotEqual_SameLength_DifferentValues(t as object)
+    'False if two roArrays are the same length but contain different values
+    x = [1,2, 6]
+    y = [1,2,4]
+    result = t.eqValues(x, y)
+    t.assertFalse(result)
+End Sub
+
 
