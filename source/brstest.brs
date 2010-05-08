@@ -448,6 +448,15 @@ End Function
 
 Function brstTcEqValues(Value1 as Object, Value2 as Object) as Boolean
     'Compare two arbtrary values to eachother
+
+    'Upcast int to float, if other is float
+    if type(Value1) = "roFloat" and type(Value2) = "roInt"
+        Value2 = box(Cdbl(Value2))
+    else if type(Value2) = "roFloat" and type(Value1) = "roInt"
+        Value1 = box(Cdbl(Value1))
+    end if
+
+
     if type(Value1) <> type(Value2) then
         return False
     else

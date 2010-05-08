@@ -402,6 +402,22 @@ Sub testTestCase_EqValues_Floats_NotEqual(t as object)
     t.assertFalse(result)
 End Sub
 
+Sub testTestCase_EqValues_Equal_FloatAndIntValues(t as object)
+    'True if equal float and int values are supplied
+    x = 3.0
+    y = 3
+    result = t.eqValues(x, y)
+    t.assertTrue(result)
+End Sub
+
+Sub testTestCase_EqValues_Equal_IntAndFloatValues(t as object)
+    'True if equal int and float values are supplied
+    x = 3
+    y = 3.0
+    result = t.eqValues(x, y)
+    t.assertTrue(result)
+End Sub
+
 Sub testTestCase_EqValues_Strings_AreEqual(t as object)
     'True if two string values are equal
     x = "Foo Bar"
@@ -523,28 +539,28 @@ Sub testTestCase_EqValues_AssocArray_NotEqual_DiffKeysSameCount(t as object)
     t.assertFalse(result)
 End Sub
 
-Sub testTestCase_EqValues_Array_NotEqual_FirstIsLonger(t as object)
-    'False if the first of two roArrays is longer
-    x = [1,2,3]
-    y = [1,2]
-    result = t.eqValues(x, y)
-    t.assertFalse(result)
-End Sub
-
-Sub testTestCase_EqValues_Array_NotEqual_SecondIsLonger(t as object)
-    'False if the second of two roArrays is longer
-    x = [1,2]
-    y = [1,2,4]
-    result = t.eqValues(x, y)
-    t.assertFalse(result)
-End Sub
-
-Sub testTestCase_EqValues_Array_NotEqual_SameLength_DifferentValues(t as object)
-    'False if two roArrays are the same length but contain different values
-    x = [1,2, 6]
-    y = [1,2,4]
-    result = t.eqValues(x, y)
-    t.assertFalse(result)
-End Sub
-
-
+'Sub testTestCase_EqValues_Array_NotEqual_FirstIsLonger(t as object)
+'    'False if the first of two roArrays is longer
+'    x = [1,2,3]
+'    y = [1,2]
+'    result = t.eqValues(x, y)
+'    t.assertFalse(result)
+'End Sub
+'
+'Sub testTestCase_EqValues_Array_NotEqual_SecondIsLonger(t as object)
+'    'False if the second of two roArrays is longer
+'    x = [1,2]
+'    y = [1,2,4]
+'    result = t.eqValues(x, y)
+'    t.assertFalse(result)
+'End Sub
+'
+'Sub testTestCase_EqValues_Array_NotEqual_SameLength_DifferentValues(t as object)
+'    'False if two roArrays are the same length but contain different values
+'    x = [1,2, 6]
+'    y = [1,2,4]
+'    result = t.eqValues(x, y)
+'    t.assertFalse(result)
+'End Sub
+'
+'
