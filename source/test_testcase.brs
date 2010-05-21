@@ -42,11 +42,14 @@ Sub assertEqualMessageForNotEquals(t as object, val1 as object, val2 as object, 
         m.ErrorMessage = msg
     end function
     tc.assertEqual(val1, val2)
+
+    ' Manually compare strings instead of using assertEqual() as we are testing
+    ' the assertEqual() method
     if "" = tc.ErrorMessage then
         t.fail("No error message was set")
     else if ExpectedMessage <> tc.ErrorMessage then
-        err_msg = "Expected Msg: " + ExpectedMessage + chr(10)
-        err_msg = err_msg + "Actual Msg:   " + tc.ErrorMessage
+        err_msg = "Expected Msg: " + chr(34) + ExpectedMessage + chr(34) + chr(10)
+        err_msg = err_msg + "Actual Msg:   " + chr(34) + tc.ErrorMessage + chr(34) 
         t.fail(err_msg)
     end if
 End Sub
@@ -72,13 +75,10 @@ Sub assertNotEqualMessageForEquals(t as object, val1 as object, val2 as object, 
         m.ErrorMessage = msg
     end function
     tc.assertNotEqual(val1, val2)
-    if "" = tc.ErrorMessage then
-        t.fail("No error message was set")
-    else if ExpectedMessage <> tc.ErrorMessage then
-        err_msg = "Expected Msg: " + ExpectedMessage + chr(10)
-        err_msg = err_msg + "Actual Msg:   " + tc.ErrorMessage
-        t.fail(err_msg)
-    end if
+
+    ' Ok to use assertEqual() in this case as we are testting
+    ' assertNotEqual()
+    t.assertEqual(ExpectedMessage, tc.ErrorMessage)
 End Sub
 
 Sub assertNotEqualNoMessageForNotEquals(t as object, val1 as object, val2 as object)
@@ -128,7 +128,8 @@ Sub testTestCase_assertEqual_TwoFloats_NotEqual(t as object)
     'Unequal float values produce expected error message
     f1 = 3.14
     f2 = 3.15
-    expected_msg = Str(f1) + " != " + Str(f2)
+    expected_msg = Str(f1) + " !=" + Str(f2)
+    expected_msg = Right(expected_msg, Len(expected_msg) - 1) ' Remove sign padding
     assertEqualMessageForNotEquals(t, f1, f2, expected_msg)
 End Sub
 
@@ -143,7 +144,8 @@ Sub testTestCase_assertNotEqual_TwoFloats_AreEqual(t as object)
     'Equal float values produces expected error message
     f1 = 3.14
     f2 = 3.14
-    expected_msg = Str(f1) + " == " + Str(f2)
+    expected_msg = Str(f1) + " ==" + Str(f2)
+    expected_msg = Right(expected_msg, Len(expected_msg) - 1) ' Remove sign padding
     assertNotEqualMessageForEquals(t, f1, f2, expected_msg)
 End Sub
 
@@ -158,7 +160,8 @@ Sub testTestCase_assertEqual_TwoInts_NotEqual(t as object)
     'Unequal integer values produce expected error message
     i1 = 3
     i2 = 4
-    expected_msg = Stri(i1) + " != " + Stri(i2)
+    expected_msg = Stri(i1) + " !=" + Stri(i2)
+    expected_msg = Right(expected_msg, Len(expected_msg) - 1) ' Remove sign padding
     assertEqualMessageForNotEquals(t, i1, i2, expected_msg)
 End Sub
 
@@ -173,7 +176,8 @@ Sub testTestCase_assertNotEqual_TwoInts_AreEqual(t as object)
     'Equal integer values produces expected error message
     i1 = 3
     i2 = 3
-    expected_msg = Str(i1) + " == " + Str(i2)
+    expected_msg = Str(i1) + " ==" + Str(i2)
+    expected_msg = Right(expected_msg, Len(expected_msg) - 1) ' Remove sign padding
     assertNotEqualMessageForEquals(t, i1, i2, expected_msg)
 End Sub
 
@@ -188,7 +192,7 @@ Sub testTestCase_assertEqual_StrAndFloat(t as object)
     'String and Float values yield expected error message
     v1 = "Foo Bar"
     v2 = 3.14
-    expected_msg = Chr(34) + v1 + Chr(34) + " != " + Str(v2)
+    expected_msg = Chr(34) + v1 + Chr(34) + " !=" + Str(v2)
     assertEqualMessageForNotEquals(t, v1, v2, expected_msg)
 End Sub
 
@@ -196,7 +200,8 @@ Sub testTestCase_assertEqual_FloatAndStr(t as object)
     'Float and string values yield expected error message
     v1 = 3.14
     v2 = "Foo Bar"
-    expected_msg = Str(v1) + " != " + Chr(34) + v2 + Chr(34) 
+    expected_msg = Str(v1) + " != " + Chr(34) + v2 + Chr(34)
+    expected_msg = Right(expected_msg, Len(expected_msg) - 1) ' Remove sign padding
     assertEqualMessageForNotEquals(t, v1, v2, expected_msg)
 End Sub
 
@@ -227,7 +232,8 @@ Sub testTestCase_assertNotEqual_FloatAndInt(t as object)
     'Equivalent float and int values should cause error
     f = 3.0
     i = 3
-    expected_msg = Str(f) + " == " + Str(i)
+    expected_msg = Str(f) + " ==" + Str(i)
+    expected_msg = Right(expected_msg, Len(expected_msg) - 1) ' Remove sign padding
     assertNotEqualMessageForEquals(t, f, i, expected_msg)
 End Sub
 
@@ -235,7 +241,8 @@ Sub testTestCase_assertNotEqual_IntAndFloat(t as object)
     'Equivalent int and float values should cause error
     f = 3.0
     i = 3
-    expected_msg = Str(i) + " == " + Str(f)
+    expected_msg = Str(i) + " ==" + Str(f)
+    expected_msg = Right(expected_msg, Len(expected_msg) - 1) ' Remove sign padding
     assertNotEqualMessageForEquals(t, i, f, expected_msg)
 End Sub
 
@@ -274,7 +281,7 @@ End Sub
 Sub testTestCase_ValueTostring_String(t as object)
     'Can pass a string to the ValueToString method
     s = "Foo Bar"
-    expected = "Foo Bar"
+    expected = Chr(34) + "Foo Bar" + Chr(34)
     actual = t.ValueToString(s)
     t.assertEqual(expected, actual)
 End Sub
@@ -303,25 +310,6 @@ Sub testTestCase_ValueTostring_roInvalid(t as Object)
     t.assertEqual(expected, actual)
 End Sub
 
-Sub testTestCase_ValueTostring_roList_Empty(t as Object)
-    'Convert an empty roList to a string w/the ValueToString method
-    l = CreateObject("roList")
-    expected = "->/"
-    actual = t.ValueToString(l)
-    t.assertEqual(expected, actual)
-End Sub
-
-Sub testTestCase_ValueTostring_roList_Ints(t as Object)
-    'Convert roList of ints w/the ValueToString method
-    l = CreateObject("roList")
-    l.AddTail(1)
-    l.AddTail(2)
-    l.AddTail(3)
-    expected = "1 -> 2 -> 3 -> /"
-    actual = t.ValueToString(l)
-    t.assertEqual(expected, actual)
-End Sub
-
 Sub testTestCase_ValueTostring_roAssociativeArray_Empty(t as object)
     'Appropriate converstion of an empty associative array
     aa = {}
@@ -345,30 +333,6 @@ Sub testTestCase_ValueTostring_roAssociativeArray_NestedWithAnotherAA(t as objec
     actual = t.ValueToString(aa)
     t.assertEqual(expected, actual)
 End Sub
-
-' Sub testTestCase_ValueTostring_roArray_Empty(t as object) 
-'     'Proper conversion of an empty roArray object
-'     array = []
-'     expected = "[ ]"
-'     actual = t.ValueToString(array)
-'     t.assertEqual(expected, actual)
-' End Sub
-'
-'Sub testTestCase_ValueTostring_roArray_Ints(t as object)
-'    'Conversion of roArray with int entries
-'    array = [1,2,3]
-'    expected = "[ 1, 2, 3 ]"
-'    actual = t.ValueToString(array)
-'    t.assertEqual(expected, actual)
-'End Sub
-'
-'Sub testTestCase_ValueTostring_roArray_NestedArrays(t as object)
-'    'Convert an array which has another array as one of its elements
-'    array = [1,[2,3],4]
-'    expected = "[ 1, [ 2, 3 ], 4 ]"
-'    actual = t.ValueToString(array)
-'    t.assertEqual(expected, actual)
-'End Sub
 
 Sub testTestCase_EqValues_Integers_AreEqual(t as object)
     'True if two integer values are equal
@@ -458,47 +422,6 @@ Sub testTestCase_EqValues_Bools_NotEqual(t as object)
     t.assertFalse(result)
 End Sub
 
-'Sub testTestCase_EqValues_Lists_AreEqual(t as object)
-'    'True if two list values are equal
-'    x = CreateObject("roList")
-'    x.AddTail(1)
-'    x.AddTail(2)
-'    x.AddTail(3)
-'    y = CreateObject("roList")
-'    y.AddTail(1)
-'    y.AddTail(2)
-'    y.AddTail(3)
-'    result = t.eqValues(x, y)
-'    t.assertTrue(result)
-'End Sub
-
-Sub testTestCase_EqValues_Lists_NotEqual_DifferentLength(t as object)
-    'False if two list values are not equal due to having a different length
-    x = CreateObject("roList")
-    x.AddTail(1)
-    x.AddTail(2)
-    x.AddTail(3)
-    y = CreateObject("roList")
-    y.AddTail(1)
-    y.AddTail(2)
-    result = t.eqValues(x, y)
-    t.assertFalse(result)
-End Sub
-
-'Sub testTestCase_EqValues_Lists_NotEqual_DifferentValues(t as object)
-'    'False if two list are the same length, but have different entries
-'    x = CreateObject("roList")
-'    x.AddTail(1)
-'    x.AddTail(2)
-'    x.AddTail(3)
-'    y = CreateObject("roList")
-'    y.AddTail(1)
-'    y.AddTail(2)
-'    y.AddTail(12)
-'    result = t.eqValues(x, y)
-'    t.assertFalse(result)
-'End Sub
-
 Sub testTestCase_EqValues_AssocArray_AreEqual(t as object)
     'True if two roAssociativeArrays have the same keys and point to equal values
     x = {Foo:1, Bar:2}
@@ -539,28 +462,52 @@ Sub testTestCase_EqValues_AssocArray_NotEqual_DiffKeysSameCount(t as object)
     t.assertFalse(result)
 End Sub
 
-'Sub testTestCase_EqValues_Array_NotEqual_FirstIsLonger(t as object)
-'    'False if the first of two roArrays is longer
-'    x = [1,2,3]
-'    y = [1,2]
-'    result = t.eqValues(x, y)
-'    t.assertFalse(result)
-'End Sub
-'
-'Sub testTestCase_EqValues_Array_NotEqual_SecondIsLonger(t as object)
-'    'False if the second of two roArrays is longer
-'    x = [1,2]
-'    y = [1,2,4]
-'    result = t.eqValues(x, y)
-'    t.assertFalse(result)
-'End Sub
-'
-'Sub testTestCase_EqValues_Array_NotEqual_SameLength_DifferentValues(t as object)
-'    'False if two roArrays are the same length but contain different values
-'    x = [1,2, 6]
-'    y = [1,2,4]
-'    result = t.eqValues(x, y)
-'    t.assertFalse(result)
-'End Sub
-'
-'
+sub testTestCase_EqValues_Function_AreEqual(t as object)
+    'True if two function arguments are the same function
+    x = Function () 
+        Return 1
+    End Function
+    y = x
+    result = t.eqValues(x,y)
+    t.assertTrue(result)
+End Sub
+
+sub testTestCase_EqValues_Function_AreNotEqual(t as object)
+    'False if two function arguments are not the same function
+    x = Function () 
+        Return 1
+    End Function
+    y = Function ()
+        Return 1
+    End Function
+    result = t.eqValues(x,y)
+    t.assertFalse(result)
+End Sub
+
+sub testTestCase_EqValues_FunctionOnObject_AreEqual(t as object)
+    'True if two function arguments from an 'object' are the same function
+    x = t.assertEqual
+    y = t.assertEqual
+    result = t.eqValues(x,y)
+    t.assertTrue(result)
+End Sub
+
+sub testTestCase_EqValues_FunctionOnObject_AreNotEqual(t as object)
+    'False if two function arguments from the same 'object' are not the same function
+    x = t.assertEqual
+    y = t.assertNotEqual
+    result = t.eqValues(x,y)
+    t.assertFalse(result)
+End Sub
+
+sub testTestCase_EqValues_FunctionOnDifferentObject_AreNotEqual(t as object)
+    'True if two function arguments are from different 'objects' but the
+    'same function
+    fixture = brstNewTestFixture("", "", "")
+    tc = brstNewTestCase(fixture)
+    x = t.assertEqual
+    y = tc.assertEqual
+    result = t.eqValues(x,y)
+    t.assertTrue(result)
+End Sub
+
