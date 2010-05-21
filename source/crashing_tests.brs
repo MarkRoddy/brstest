@@ -2,14 +2,6 @@
 'cause the Roku DVP to crash during their execution.  They are being sequestored as
 'to prevent stalling furthor development.  Execute these tests at your own risk.
 
-Sub testTestCase_ValueTostring_roList_Empty(t as Object)
-    'Convert an empty roList to a string w/the ValueToString method
-    l = CreateObject("roList")
-    expected = "->/"
-    actual = t.ValueToString(l)
-    t.assertEqual(expected, actual)
-End Sub
-
 Sub testTestCase_ValueTostring_roArray_Empty(t as object) 
     'Proper conversion of an empty roArray object
     array = []

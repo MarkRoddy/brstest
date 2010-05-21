@@ -334,6 +334,14 @@ Sub testTestCase_ValueTostring_roAssociativeArray_NestedWithAnotherAA(t as objec
     t.assertEqual(expected, actual)
 End Sub
 
+Sub testTestCase_ValueTostring_roList_Empty(t as Object)
+    'Convert an empty roList to a string w/the ValueToString method
+    l = CreateObject("roList")
+    expected = "->/"
+    actual = t.ValueToString(l)
+    t.assertEqual(expected, actual)
+End Sub
+
 Sub testTestCase_ValueTostring_roList_Ints(t as Object)
     'Convert roList of ints w/the ValueToString method
     l = CreateObject("roList")
@@ -505,4 +513,10 @@ sub testTestCase_EqValues_FunctionOnDifferentObject_AreNotEqual(t as object)
     result = t.eqValues(x,y)
     t.assertTrue(result)
 End Sub
+
+
+
+
+
+
 
