@@ -208,6 +208,7 @@ Sub brstTcInit(Fixture as object)
     m.eqLists = brstTcEqList
     m.eqAssocArrays = brstTcEqAssocArray
     m.eqArrays = brstTcEqArray
+    m.eqFunction = brstTcEqFunction
 
     m._TypeComparers = {}
     m._TypeComparers["roInt"] = "eqIntegers"
@@ -217,6 +218,7 @@ Sub brstTcInit(Fixture as object)
     m._TypeComparers["roList"] = "eqLists"
     m._TypeComparers["roAssociativeArray"] = "eqAssocArrays"
     m._TypeComparers["roArray"] = "eqArrays"
+    m._TypeComparers["roFunction"] = "eqFunction"
 
 End Sub
 
@@ -298,49 +300,20 @@ End Sub
 
 Sub brstTcAssertEqual(first as object, second as object)
     'Fail if the two objects are unequal as determined by the '<>' operator.
-    if type(first) = "roFloat" and type(second) = "roInt"
-        second = box(Cdbl(second))
-    else if type(second) = "roFloat" and type(first) = "roInt"
-        first = box(Csng(first))
-    end if
-    if type(first) <> type(second) or first <> second then
-        'Pull this code out to a generic "make
-        'anything a string" function
-        if "roString" = type(first) then
-            first_as_string = Chr(34) + first + Chr(34)
-        else
-            first_as_string = Str(first)
-        end if
-        if "roString" = type(second) then
-            second_as_string = Chr(34) + second + Chr(34)
-        else
-            second_as_string = Str(second)
-        end if
+    if not m.eqValues(first, second) then
+        first_as_string = m.valueToString(first)
+        second_as_string = m.valueToString(second)
         m.fail(first_as_string + " != " + second_as_string)
-    End If
+    end if
 End Sub
 
 Sub brstTcAssertNotEqual(first as object, second as object)
     'Fail if the two objects are equal as determined by the '=' operator.
-    if type(first) = "roFloat" and type(second) = "roInt"
-        second = box(Cdbl(second))
-    else if type(second) = "roFloat" and type(first) = "roInt"
-        first = box(Csng(first))
-    end if
-    if type(first) = type(second) and first = second then
-        if "roString" = type(first) then
-            first_as_string = Chr(34) + first + Chr(34)
-        else
-            first_as_string = Str(first)
-        end if
-        if "roString" = type(second) then
-            second_as_string = Chr(34) + second + Chr(34)
-        else
-            second_as_string = Str(second)
-        end if
-
+    if m.eqValues(first, second) then
+        first_as_string = m.valueToString(first)
+        second_as_string = m.valueToString(second)
         m.fail(first_as_string + " == " + second_as_string)
-    End If
+    end if
 End Sub
 
 'String conversion functions used to coerce types so that can
@@ -370,7 +343,7 @@ End Function
 
 Function brstTcStringToString(SrcStr as Object) as String
     'Convert an roString object to a string
-    return SrcStr.GetString()
+    return Chr(34) + SrcStr.GetString() + Chr(34)
     'Exists so that any object can be passed to the ValueToString()
     'method, otherwise doesn't serve any real purpose
 End Function
@@ -551,6 +524,11 @@ Function brstTcEqArray(Value1 as Object, Value2 as Object) as Boolean
         return True
     end if
 End Function 
+
+Function brstTcEqFunction(Value1 as Object, Value2 as Object) as Boolean
+    'Compare two function pointers (?) for equality
+    return Value1 = Value2
+End Function
 
 
 'End Class TestCase
