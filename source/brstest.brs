@@ -257,7 +257,7 @@ End Function
 Sub brstTcRun(result as object)
     'Execute the test in this instance, and record
     'the outcome in 'result'
-    result.startTest(m._Fixture)
+    result.startTest(m)
     testMethod = m._Fixture.TestFunc
 
     if m._PropegateErrors then
@@ -368,10 +368,16 @@ Function brstTcRoListToString(SrcList as Object) as String
        return "->/"
     end if
     strvalue = ""
-    for each i in SrcList
+
+    'Not using enum interface as this results in intermintant
+    'crashes or the DVP box
+    SrcList.ResetIndex()
+    i = SrcList.GetIndex()
+    while i <> invalid
         strvalue = strvalue + m.ValueToString(i)
         strvalue = strvalue + " -> "
-    end for
+        i = SrcList.GetIndex()
+    end while
     strvalue = strvalue + "/"
     return strvalue
 End Function
@@ -740,7 +746,7 @@ End Sub
 Function brstNewTextTestRunner() as object
     new_runner = CreateObject("roAssociativeArray")
     new_runner.init = brstTtrnInit
-    new_runner.init(1,1)
+    new_runner.init(1,2)
     return new_runner
 End Function
 

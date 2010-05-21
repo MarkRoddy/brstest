@@ -10,17 +10,6 @@ Sub testTestCase_ValueTostring_roList_Empty(t as Object)
     t.assertEqual(expected, actual)
 End Sub
 
-Sub testTestCase_ValueTostring_roList_Ints(t as Object)
-    'Convert roList of ints w/the ValueToString method
-    l = CreateObject("roList")
-    l.AddTail(1)
-    l.AddTail(2)
-    l.AddTail(3)
-    expected = "1 -> 2 -> 3 -> /"
-    actual = t.ValueToString(l)
-    t.assertEqual(expected, actual)
-End Sub
-
 Sub testTestCase_ValueTostring_roArray_Empty(t as object) 
     'Proper conversion of an empty roArray object
     array = []
@@ -111,3 +100,20 @@ Sub testTestCase_EqValues_Array_NotEqual_SameLength_DifferentValues(t as object)
 End Sub
 
 
+'Discovered to be causing itermitant crashes on 05/21/10
+Sub testTestCase_EqValues_AssocArray_AreEqual(t as object)
+    'True if two roAssociativeArrays have the same keys and point to equal values
+    x = {Foo:1, Bar:2}
+    y = {Foo:1, Bar:2}
+    result = t.eqValues(x, y)
+    t.assertTrue(result)
+End Sub
+
+'Discovered to be causing itermitant crashes on 05/21/10
+Sub testTestCase_EqValues_AssocArray_NotEqual_DifferentValues(t as object)
+    'False if two roAssociativeArrays have the same keys and point to different values
+    x = {Foo:1, Bar:2}
+    y = {Foo:1, Bar:5}
+    result = t.eqValues(x, y)
+    t.assertFalse(result)
+End Sub
