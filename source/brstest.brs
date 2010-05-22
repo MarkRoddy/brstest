@@ -188,17 +188,6 @@ Sub brstTcInit(Fixture as object)
     m.roArrayToString = brstTcRoArrayToString
     m.roInvalidToString = brstTcRoInvalidToString
 
-    m._StrConverters = {}
-    m._StrConverters["roInt"] = "integerToString"
-    m._StrConverters["roFloat"] = "floatToString"
-    m._StrConverters["roString"] = "stringToString"
-    m._StrConverters["roBoolean"] = "booleanToString"
-    m._StrConverters["roList"] = "roListToString"
-    m._StrConverters["roAssociativeArray"] = "assocArrayToString"
-    m._StrConverters["roArray"] = "roArrayToString"
-    m._StrConverters["roInvalid"] = "roInvalidToString"
-
-
     'Type Comparison Functionality
     m.eqValues = brstTcEqValues
     m.eqIntegers = brstTcEqInteger
@@ -209,16 +198,6 @@ Sub brstTcInit(Fixture as object)
     m.eqAssocArrays = brstTcEqAssocArray
     m.eqArrays = brstTcEqArray
     m.eqFunction = brstTcEqFunction
-
-    m._TypeComparers = {}
-    m._TypeComparers["roInt"] = "eqIntegers"
-    m._TypeComparers["roFloat"] = "eqFloats"
-    m._TypeComparers["roString"] = "eqStrings"
-    m._TypeComparers["roBoolean"] = "eqBools"
-    m._TypeComparers["roList"] = "eqLists"
-    m._TypeComparers["roAssociativeArray"] = "eqAssocArrays"
-    m._TypeComparers["roArray"] = "eqArrays"
-    m._TypeComparers["roFunction"] = "eqFunction"
 
 End Sub
 
@@ -320,12 +299,30 @@ End Sub
 'be outputted upon test failure
 Function brstTcValueToString(SrcValue as Object) as String
     'Converts an arbitrary value to a string representation
+    
+    'A dispatch table would be better approach here than
+    'this switch/case like approach, but one was attempted
+    'and needed to be abandonded due to a bug in the only
+    'mechinism of doing so.  See the following forum thread
+    'for more information on the issue:
+    'http://forums.roku.com/viewtopic.php?f=34&t=27338
     value_type = type(SrcValue)
-    if m._StrConverters.DoesExist(value_type) then 
-        method_name = m._StrConverters[value_type]
-        result = "I DID NOT PROPERLY RETURN FROM EVAL"
-        eval("result = m." + method_name + "(SrcValue)")
-        return result
+    if value_type = "roInt" then
+        return m.integerToString(SrcValue)
+    else if value_type = "roFloat" then
+        return m.floatToString(SrcValue)
+    else if value_type = "roString" then
+        return m.stringToString(SrcValue)
+    else if value_type = "roBoolean" then
+        return m.booleanToString(SrcValue)
+    else if value_type = "roList" then
+        return m.roListToString(SrcValue)
+    else if value_type = "roAssociativeArray" then
+        return m.assocArrayToString(SrcValue)
+    else if value_type = "roArray" then
+        return m.roArrayToString(SrcValue)
+    else if value_type = "roInvalid" then
+        return m.roInvalidToString(SrcValue)
     else
         return "Unknown type: " + value_type
     end if
@@ -435,20 +432,38 @@ Function brstTcEqValues(Value1 as Object, Value2 as Object) as Boolean
         Value1 = box(Cdbl(Value1))
     end if
 
-
     if type(Value1) <> type(Value2) then
         return False
     else
+        'A dispatch table would be better approach here than
+        'this switch/case like approach, but one was attempted
+        'and needed to be abandonded due to a bug in the only
+        'mechinism of doing so.  See the following forum thread
+        'for more information on the issue:
+        'http://forums.roku.com/viewtopic.php?f=34&t=27338
         valtype = type(Value1)
-        if m._TypeComparers.DoesExist(valtype) then
-            method_name = m._TypeComparers[valtype]
-            result = False
-            eval("result = m." + method_name + "(Value1, Value2)")
-            return result
+        if valtype = "roInt" then
+            return m.eqIntegers(Value1, Value2)
+        else if valtype = "roFloat" then
+            return m.eqFloats(Value1, Value2)
+        else if valtype = "roString" then
+            return m.eqStrings(Value1, Value2)
+        else if valtype = "roBoolean" then
+            return m.eqBools(Value1, Value2)
+        else if valtype = "roList" then
+            return m.eqLists(Value1, Value2)
+        else if valtype = "roAssociativeArray" then
+            return m.eqAssocArrays(Value1, Value2)
+        else if valtype = "roArray" then
+            return m.eqArrays(Value1, Value2)
+        else if valtype = "roFunction" then
+            return m.eqFunction(Value1, Value2)
         else
-            'I don't Reconize this type
+            'todo: This isn't the best approach to 
+            'handling an unknown type, but will 
+            'suffice for now        
             return False
-        end if
+        end if    
     end if
 End Function 
 
@@ -746,7 +761,7 @@ End Sub
 Function brstNewTextTestRunner() as object
     new_runner = CreateObject("roAssociativeArray")
     new_runner.init = brstTtrnInit
-    new_runner.init(1,2)
+    new_runner.init(1,1)
     return new_runner
 End Function
 
