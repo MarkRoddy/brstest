@@ -20,7 +20,10 @@ ZIPREL = ../zips
 SOURCEREL = ..
 DISTREL = ../dist
 APPNAME = brstest
-VERSION = 0.1.0
+VERMAJOR=$(shell cat manifest|grep ^major_version|cut -d '=' -f 2)
+VERMINOR=$(shell cat manifest|grep ^minor_version|cut -d '=' -f 2)
+VERSUBMINOR=$(shell cat manifest|grep ^subminor_version|cut -d '=' -f 2)
+VERSION = $(VERMAJOR).$(VERMINOR).$(VERSUBMINOR)
 
 .PHONY: all brstest
 
