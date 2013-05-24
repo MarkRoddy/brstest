@@ -46,7 +46,7 @@ Sub testTestLoader_fixturesFromScriptContents_FunctionWithoutPrefixNotReturned(t
     sub_code = sub_code + chr(10)
     
     tl = brstNewTestLoader("Test", "test")
-    fixtures = tl.fixturesFromScriptContents(sub_code)
+    fixtures = tl.fixturesFromScriptContents(sub_code, "")
 
     'No fixtures should be returned
     t.assertEqual(0, fixtures.Count())
@@ -63,7 +63,7 @@ sub_code = sub_code + chr(10)
 sub_code = sub_code + "'End Sub"
 sub_code = sub_code + chr(10)
     tl = brstNewTestLoader("Test", "test")
-    fixtures = tl.fixturesFromScriptContents(sub_code)
+    fixtures = tl.fixturesFromScriptContents(sub_code, "")
 
     'No fixtures should be returned
     t.assertEqual(0, fixtures.Count())
@@ -82,7 +82,7 @@ sub_code = sub_code + chr(10)
     subref = testTestLoader_fixturesFromScriptContents_TestSubFound
     sdesc = "" '<--Update once message parsing is added
     tl = brstNewTestLoader("Test", "test")
-    fixtures = tl.fixturesFromScriptContents(sub_code)
+    fixtures = tl.fixturesFromScriptContents(sub_code, "")
 
     'Only one fixture should be returned
     t.assertEqual(1, fixtures.Count())
@@ -110,7 +110,7 @@ func_code = func_code + chr(10)
     func = testTestLoader_fixturesFromScriptContents_TestFunctionFound
     fdesc = "" '<--Update once message parsing is added
     tl = brstNewTestLoader("Test", "test")
-    fixtures = tl.fixturesFromScriptContents(func_code)
+    fixtures = tl.fixturesFromScriptContents(func_code, "")
     t.assertEqual(1, fixtures.Count())
 
     fixture = fixtures[0]
@@ -126,7 +126,7 @@ End Function
 Sub testTestLoader_fixturesFromScriptContents_NoneFound(t as object)
     'Emtpy enumerable return if no tests were found
     tl = brstNewTestLoader("Test", "test")
-    fixtures = tl.fixturesFromScriptContents("")
+    fixtures = tl.fixturesFromScriptContents("", "")
     t.assertEqual(0, fixtures.Count())
 End Sub
 

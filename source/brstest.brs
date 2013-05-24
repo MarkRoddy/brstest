@@ -132,11 +132,12 @@ End Function
 'Begin Class TestFixture
 'A single test to be executed which is utilized by the TestCase class
 'for execution and the TestResult class for reporting on the result.
-Function brstNewTestFixture(TestFunc as Object, TestName as String, TestDescription as String) as Object
+Function brstNewTestFixture(TestFunc as Object, TestName as String, TestDescription as String, TestScriptPath as String) as Object
     new_fix = CreateObject("roAssociativeArray")
     new_fix.TestFunc = TestFunc
     new_fix.FuncName = TestName
     new_fix.Descript = TestDescription
+    new_fix.TestScriptPath = TestScriptPath
     return new_fix
 End Function
 'End Class TestFixture
@@ -734,6 +735,7 @@ Sub brstTtrPrintErrorList(flavour as string, errors as object)
         test=err_item[0]
         err=err_item[1]
         m.writeline(m.separator1)
+        m.writeline(test._fixture.testScriptPath)
         m.writeline(flavour + ": " + m.getDescription(test))
         m.writeline(m.separator2)
         m.writeline(err)
@@ -916,7 +918,7 @@ Function brstTlFixturesFromScript(scriptpath as string) as Object
     'Returns an enumerable of TestFixture objects from the
     'contents of a script file designated
     code = m.readFile(scriptpath)
-    return m.fixturesFromScriptContents(code)
+    return m.fixturesFromScriptContents(code, scriptpath)
 End Function
 
 Function brstTlReadFile(fromfile as string) as string
@@ -925,7 +927,7 @@ Function brstTlReadFile(fromfile as string) as string
     return ReadAsciiFile(fromfile)
 End Function
 
-Function brstTlFixturesFromScriptContents(scriptstr as string) as Object
+Function brstTlFixturesFromScriptContents(scriptstr as string, scriptpath as string) as Object
     'Returns an enumerable of TestFixture objects from the contents
     'of a test script file
     'Assumes that the code file has already been compiled and the
@@ -945,7 +947,7 @@ Function brstTlFixturesFromScriptContents(scriptstr as string) as Object
             fname = tokens[0]
             if UCase(Left(fname, len(m.testMethodPrefix))) = UCase(m.testMethodPrefix) then 
                 eval("fobj=" + fname)
-                fixt = brstNewTestFixture(fobj, fname, "")
+                fixt = brstNewTestFixture(fobj, fname, "", scriptpath)
                 fixtures.AddTail(fixt)
             end if
         end if
