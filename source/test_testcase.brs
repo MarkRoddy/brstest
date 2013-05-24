@@ -4,14 +4,14 @@
 Sub testTestCase_ToString_EqualToMethodName(t as object)
     'To string should return the test method name
     methodname = "testfoobar"
-    fixture = brstNewTestFixture("", methodname, "")
+    fixture = brstNewTestFixture("", methodname, "", "")
     tc = brstNewTestCase(fixture)
     t.assertEqual(methodname, tc.toString())
 End Sub
 
 Sub testTestCase_ShortDescription_EmptyIfNoDescSpecified(t as object)
     'Empty string return if no description specified
-    fixture = brstNewTestFixture("", "", "")
+    fixture = brstNewTestFixture("", "", "", "")
     tc = brstNewTestCase(fixture)
     t.assertEqual("", tc.shortDescription())
 End Sub
@@ -21,7 +21,7 @@ Sub testTestCase_ShortDescription_OnlyFirstLineReturned(t as object)
     expected_desc = "This is the first line of the test description"
     full_desc = expected_desc + chr(10) + "This is the second line"
     full_desc = full_desc     + chr(10) + "This is the third line"
-    fixture = brstNewTestFixture("", "", full_desc)
+    fixture = brstNewTestFixture("", "", full_desc, "")
     tc = brstNewTestCase(fixture)
     t.assertEqual(expected_desc, tc.shortDescription())
 End Sub
@@ -29,13 +29,13 @@ End Sub
 Sub testTestCase_ShortDescription_SingleLineDescHandled(t as object)
     'Single line description should be returned as itself
     expected_desc = "This is the first line of the test description"
-    fixture = brstNewTestFixture("", "", expected_desc)
+    fixture = brstNewTestFixture("", "", expected_desc, "")
     tc = brstNewTestCase(fixture)
     t.assertEqual(expected_desc, tc.shortDescription())
 End Sub
 
 Sub assertEqualMessageForNotEquals(t as object, val1 as object, val2 as object, ExpectedMessage as object)
-    fixture = brstNewTestFixture("", "", "")
+    fixture = brstNewTestFixture("", "", "", "")
     tc = brstNewTestCase(fixture)
     tc.ErrorMessage = ""
     tc.fail = function(msg as string) 
@@ -55,7 +55,7 @@ Sub assertEqualMessageForNotEquals(t as object, val1 as object, val2 as object, 
 End Sub
 
 Sub assertEqualMessageForEquals(t as object, val1 as object, val2 as object)
-    fixture = brstNewTestFixture("", "", "")
+    fixture = brstNewTestFixture("", "", "", "")
     tc = brstNewTestCase(fixture)
     tc.ErrorMessage = ""
     tc.fail = function(msg as string) 
@@ -68,7 +68,7 @@ Sub assertEqualMessageForEquals(t as object, val1 as object, val2 as object)
 End Sub
 
 Sub assertNotEqualMessageForEquals(t as object, val1 as object, val2 as object, ExpectedMessage as string)
-    fixture = brstNewTestFixture("", "", "")
+    fixture = brstNewTestFixture("", "", "", "")
     tc = brstNewTestCase(fixture)
     tc.ErrorMessage = ""
     tc.fail = function(msg as string) 
@@ -82,7 +82,7 @@ Sub assertNotEqualMessageForEquals(t as object, val1 as object, val2 as object, 
 End Sub
 
 Sub assertNotEqualNoMessageForNotEquals(t as object, val1 as object, val2 as object)
-    fixture = brstNewTestFixture("", "", "")
+    fixture = brstNewTestFixture("", "", "", "")
     tc = brstNewTestCase(fixture)
     tc.ErrorMessage = ""
     tc.fail = function(msg as string) 
@@ -545,7 +545,7 @@ End Sub
 sub testTestCase_EqValues_FunctionOnDifferentObject_AreNotEqual(t as object)
     'True if two function arguments are from different 'objects' but the
     'same function
-    fixture = brstNewTestFixture("", "", "")
+    fixture = brstNewTestFixture("", "", "", "")
     tc = brstNewTestCase(fixture)
     x = t.assertEqual
     y = tc.assertEqual
