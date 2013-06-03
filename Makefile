@@ -14,7 +14,7 @@
 # 2) Set the variable ROKU_DEV_TARGET in your environment to the IP 
 #    address of your Roku box. (e.g. export ROKU_DEV_TARGET=192.168.1.1.
 #    Set in your this variable in your shell startup (e.g. .bashrc)
-##########################################################################  
+##########################################################################
 PKGREL = ../packages
 ZIPREL = ../zips
 SOURCEREL = ..
