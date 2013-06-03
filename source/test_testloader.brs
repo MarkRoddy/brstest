@@ -130,3 +130,28 @@ Sub testTestLoader_fixturesFromScriptContents_NoneFound(t as object)
     t.assertEqual(0, fixtures.Count())
 End Sub
 
+Sub testTestLoader_findTestScripts_InSubDirectories(t as object)
+    tl = brstNewTestLoader("Test", "test")
+
+    tl.ListDir = Function(fromdirectory as string)
+      if fromdirectory = "directory"
+        return ["subDirectory1", "TestFile1.brs"]
+      else if fromdirectory = "directory/subDirectory1"
+        return ["TestFile2.brs", "subDirectory2", "TestFile3.brs"]
+      else if fromdirectory = "directory/subDirectory1/subDirectory2"
+        return ["TestFile4.brs", "TestFile5.brs", "TestFooBar.txt"]
+      end if
+    end Function
+
+    tl.CompiledFiles = 0
+
+    tl.compileScript = function(scriptpath as string)
+        m.CompiledFiles = m.CompiledFiles + 1
+        return true
+    End Function
+
+    files = tl.findTestScripts("directory")
+    t.assertEqual(5, files.Count())
+    t.assertEqual(5, tl.CompiledFiles)
+End Sub
+
