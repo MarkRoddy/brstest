@@ -178,8 +178,8 @@ End Sub
 
 Sub testttsPrintFileNameOnFailure(t as object)
     tl = brstNewTestLoader("Test", "test")
-    fixtures = tl.fixturesFromScript("pkg:/source/test_examples.brs")
-    t.assertEqual("pkg:/source/test_examples.brs", fixtures[0].testScriptPath)
+    fixtures = tl.fixturesFromScript("pkg:/source/examples/test_examples.brs")
+    t.assertEqual("pkg:/source/examples/test_examples.brs", fixtures[0].testScriptPath)
 End Sub
 
 

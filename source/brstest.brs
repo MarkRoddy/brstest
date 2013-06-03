@@ -829,6 +829,7 @@ Function brstNewTestLoader(TestFilePrefix as string, TestMethodPrefix as string)
     ldr.fixturesFromScriptContents = brstTlFixturesFromScriptContents
     ldr.findTestScripts = brstTlFindTestScripts
     ldr.ListDir = brstTlListDir
+    ldr.recursiveListDir = brstlrecursiveListDir
     ldr.fixturesFromScript = brstTlFixturesFromScript
     ldr.readFile = brstTlReadFile
     ldr.fixturesFromDirectory = brstTlFixturesFromDirectory
@@ -861,6 +862,21 @@ Function brstTlFixturesFromDirectory(fromdirectory as String) as object
     return ret
 End Function
 
+Function brstlRecursiveListDir(directory as string, files as Object) as Object
+    paths = m.ListDir(directory)
+    for each path in paths
+        if path.instr(".") = -1
+            m.recursiveListDir(directory + "/" + path, files)
+        else
+            files.push({
+                name: path
+                path: directory
+            })
+        end if
+    end for
+    return files
+End Function
+
 Function brstTlFindTestScripts(fromdirectory as string) as Object
     'Returns an enumerable of paths to scripts that contain
     'test fixtures based upon the naming convention supplied
@@ -872,15 +888,15 @@ Function brstTlFindTestScripts(fromdirectory as string) as Object
     else
         ShouldCompile = True
     end if
-    for each f in m.ListDir(fromdirectory)
-        if Left(UCase(f),len(m.testFilePrefix)) = UCase(m.testFilePrefix) then
+    for each f in m.recursiveListDir(fromDirectory, [])
+        if Left(UCase(f.name),len(m.testFilePrefix)) = UCase(m.testFilePrefix) then
             'Has the desired prefix
-            if Right(Ucase(f),4) = ".BRS" then
+            if Right(Ucase(f.name),4) = ".BRS" then
                 'Is a bright script file
-                full_path = fromdirectory + "/" + f
+                full_path = f.path + "/" + f.name
                 if ShouldCompile then
                     if m.compileScript(full_path) then
-                        ret.AddTail(fromdirectory + "/" + f)
+                        ret.AddTail(full_path)
                     else
                         'print full_path + " failed to compile"
                         'Don't bother as run() seems to expect a main() to be
@@ -888,7 +904,7 @@ Function brstTlFindTestScripts(fromdirectory as string) as Object
                         'but will deal with it in time
                     end if
                 else
-                    ret.AddTail(fromdirectory + "/" + f)
+                    ret.AddTail(full_path)
                 end if
             end if
         end if
