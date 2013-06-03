@@ -132,21 +132,13 @@ End Sub
 
 Sub testTestLoader_findTestScripts_InSubDirectories(t as object)
     tl = brstNewTestLoader("Test", "test")
-    tl.ListDirCalls = 0
 
     tl.ListDir = Function(fromdirectory as string)
-      m.ListDirCalls = m.ListDirCalls + 1
-
-      'top directory
-      if m.ListDirCalls = 1
+      if fromdirectory = "directory"
         return ["subDirectory1", "TestFile1.brs"]
-
-      'first nested directory
-      else if m.ListDirCalls = 2
+      else if fromdirectory = "directory/subDirectory1"
         return ["TestFile2.brs", "subDirectory2", "TestFile3.brs"]
-
-      'second nested directory
-      else if m.ListDirCalls = 3
+      else if fromdirectory = "directory/subDirectory1/subDirectory2"
         return ["TestFile4.brs", "TestFile5.brs", "TestFooBar.txt"]
       end if
     end Function
@@ -158,7 +150,7 @@ Sub testTestLoader_findTestScripts_InSubDirectories(t as object)
         return true
     End Function
 
-    files = tl.findTestScripts("foo bar")
+    files = tl.findTestScripts("directory")
     t.assertEqual(5, files.Count())
     t.assertEqual(5, tl.CompiledFiles)
 End Sub
