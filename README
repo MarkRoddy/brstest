@@ -30,6 +30,7 @@ assertTrue
 assertFalse
 assertEqual
 assertNotEqual
+assertInvalid
 
 In the case of assertEqual and assertNotEqual, there is currently a
 limitation in the number of types that can be handled.  These include
