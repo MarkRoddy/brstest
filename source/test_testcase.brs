@@ -245,6 +245,74 @@ Sub testTestCase_assertNotEqual_IntAndFloat(t as object)
     assertNotEqualMessageForEquals(t, i, f, expected_msg)
 End Sub
 
+Sub testTestCase_assertInvalid_Invalid(t as object)
+  fixture = brstNewTestFixture("", "", "", "")
+  tc = brstNewTestCase(fixture)
+  tc.ErrorMessage = ""
+  tc.fail = function(msg as string) 
+    m.ErrorMessage = msg
+  end function
+  tc.assertInvalid(Invalid)
+  if "" <> tc.ErrorMessage then
+    t.fail("Unexpected Error message: " + tc.ErrorMessage)
+  end if
+End Sub
+
+Sub testTestCase_assertInvalid_MissingProperty(t as object)
+  fixture = brstNewTestFixture("", "", "", "")
+  tc = brstNewTestCase(fixture)
+  tc.ErrorMessage = ""
+  tc.fail = function(msg as string) 
+    m.ErrorMessage = msg
+  end function
+  o = {}
+  tc.assertInvalid(o.missing)
+  if "" <> tc.ErrorMessage then
+    t.fail("Unexpected Error message: " + tc.ErrorMessage)
+  end if
+End Sub
+
+Sub testTestCase_assertInvalid_Integer(t as object)
+  fixture = brstNewTestFixture("", "", "", "")
+  tc = brstNewTestCase(fixture)
+  tc.ErrorMessage = ""
+  tc.fail = function(msg as string) 
+    m.ErrorMessage = msg
+  end function
+  tc.assertInvalid(0)
+  if "0 <> Invalid" <> tc.ErrorMessage then
+    t.fail("Unexpected Error message: " + tc.ErrorMessage)
+  end if
+End Sub
+
+Sub testTestCase_assertInvalid_Object(t as object)
+  fixture = brstNewTestFixture("", "", "", "")
+  tc = brstNewTestCase(fixture)
+  tc.ErrorMessage = ""
+  tc.fail = function(msg as string) 
+    m.ErrorMessage = msg
+  end function
+  o = {}
+  tc.assertInvalid({})
+  if "{  } <> Invalid" <> tc.ErrorMessage then
+    t.fail("Unexpected Error message: " + tc.ErrorMessage)
+  end if
+End Sub
+
+Sub testTestCase_assertInvalid_string(t as object)
+  fixture = brstNewTestFixture("", "", "", "")
+  tc = brstNewTestCase(fixture)
+  tc.ErrorMessage = ""
+  tc.fail = function(msg as string) 
+    m.ErrorMessage = msg
+  end function
+  o = {}
+  tc.assertInvalid("")
+  if Chr(34) + Chr(34) + " <> Invalid" <> tc.ErrorMessage then
+    t.fail("Unexpected Error message: " + tc.ErrorMessage)
+  end if
+End Sub
+
 Sub testTestCase_ValueTostring_Integer(t as object)
     'Can convert an integer using the ValueToString method
     i = 4

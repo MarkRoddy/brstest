@@ -170,6 +170,7 @@ Sub brstTcInit(Fixture as object)
     m.assertTrue = brstTcAssertTrue
     m.assertEqual = brstTcAssertEqual
     m.assertNotEqual = brstTcAssertNotEqual
+    m.assertInvalid = brstTcAssertInvalid
 
     'Other general purpose methods
     m.endedInFailure = brstTcEndedInFailure
@@ -293,6 +294,14 @@ Sub brstTcAssertNotEqual(first as object, second as object)
         first_as_string = m.valueToString(first)
         second_as_string = m.valueToString(second)
         m.fail(first_as_string + " == " + second_as_string)
+    end if
+End Sub
+
+Sub brstTcAssertInvalid(value as dynamic)
+    'Fail if the value is not invalid
+    if value <> Invalid then
+        expr_as_string = m.valueToString(value)
+        m.fail(expr_as_string + " <> Invalid")
     end if
 End Sub
 
