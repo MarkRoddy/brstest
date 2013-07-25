@@ -313,6 +313,74 @@ Sub testTestCase_assertInvalid_string(t as object)
   end if
 End Sub
 
+Sub testTestCase_assertNotInvalid_Invalid(t as object)
+  fixture = brstNewTestFixture("", "", "", "")
+  tc = brstNewTestCase(fixture)
+  tc.ErrorMessage = ""
+  tc.fail = function(msg as string)
+    m.ErrorMessage = msg
+  end function
+  tc.assertNotInvalid(Invalid)
+  if "roInvalid = Invalid" <> tc.ErrorMessage then
+    t.fail("Unexpected Error message: " + tc.ErrorMessage)
+  end if
+End Sub
+
+Sub testTestCase_assertNotInvalid_MissingProperty(t as object)
+  fixture = brstNewTestFixture("", "", "", "")
+  tc = brstNewTestCase(fixture)
+  tc.ErrorMessage = ""
+  tc.fail = function(msg as string)
+    m.ErrorMessage = msg
+  end function
+  o = {}
+  tc.assertNotInvalid(o.missing)
+  if "roInvalid = Invalid" <> tc.ErrorMessage then
+    t.fail("Unexpected Error message: " + tc.ErrorMessage)
+  end if
+End Sub
+
+Sub testTestCase_assertNotInvalid_Integer(t as object)
+  fixture = brstNewTestFixture("", "", "", "")
+  tc = brstNewTestCase(fixture)
+  tc.ErrorMessage = ""
+  tc.fail = function(msg as string)
+    m.ErrorMessage = msg
+  end function
+  tc.assertNotInvalid(0)
+  if "" <> tc.ErrorMessage then
+    t.fail("Unexpected Error message: " + tc.ErrorMessage)
+  end if
+End Sub
+
+Sub testTestCase_assertNotInvalid_Object(t as object)
+  fixture = brstNewTestFixture("", "", "", "")
+  tc = brstNewTestCase(fixture)
+  tc.ErrorMessage = ""
+  tc.fail = function(msg as string)
+    m.ErrorMessage = msg
+  end function
+  o = {}
+  tc.assertNotInvalid({})
+  if "" <> tc.ErrorMessage then
+    t.fail("Unexpected Error message: " + tc.ErrorMessage)
+  end if
+End Sub
+
+Sub testTestCase_assertNotInvalid_string(t as object)
+  fixture = brstNewTestFixture("", "", "", "")
+  tc = brstNewTestCase(fixture)
+  tc.ErrorMessage = ""
+  tc.fail = function(msg as string)
+    m.ErrorMessage = msg
+  end function
+  o = {}
+  tc.assertNotInvalid("")
+  if "" <> tc.ErrorMessage then
+    t.fail("Unexpected Error message: " + tc.ErrorMessage)
+  end if
+End Sub
+
 Sub testTestCase_ValueTostring_Integer(t as object)
     'Can convert an integer using the ValueToString method
     i = 4
