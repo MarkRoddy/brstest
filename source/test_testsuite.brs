@@ -50,7 +50,7 @@ Sub testtsAddTestsAllTestsAreRun(t as object)
         r.TotalRunCalls = r.TotalRunCalls + 1
     end function
 
-    ts = brstNewTestSuite("")
+    ts = brstNewTestSuite(CreateObject("roList"))
     test_set = CreateObject("roArray", 2, false)
     test_set.push(mock_test1)
     test_set.push(mock_test2)
@@ -73,7 +73,7 @@ Sub testtsAddTestNewTestIsRun(t as object)
         r.mock_test_run = True
     end function
 
-    ts = brstNewTestSuite("")
+    ts = brstNewTestSuite(CreateObject("roList"))
     ts.addTest(mock_test1)
     ts.run(mock_result)    
     t.assertTrue(mock_result.mock_test_run)
@@ -103,7 +103,7 @@ Sub testtsRunNothingAfterShouldStopSetToTrue(t as object)
         r.TotalRunCalls = r.TotalRunCalls + 1
     end function
 
-    ts = brstNewTestSuite("")
+    ts = brstNewTestSuite(CreateObject("roList"))
     ts.addTest(mock_test1)
     ts.addTest(mock_test2)
     ts.run(mock_result)    
@@ -132,7 +132,7 @@ Sub testtsRunCalledForEachTest(t as object)
         r.TotalRunCalls = r.TotalRunCalls + 1
     end function
 
-    ts = brstNewTestSuite("")
+    ts = brstNewTestSuite(CreateObject("roList"))
     ts.addTest(mock_test1)
     ts.addTest(mock_test2)
     ts.run(mock_result)    
@@ -160,7 +160,7 @@ Sub testtsCountTestCasesSumsTestsAdded(t as object)
     end function
 
     expected_tests = 7
-    ts = brstNewTestSuite("")
+    ts = brstNewTestSuite(CreateObject("roList"))
     ts.addTest(mock_test1)
     ts.addTest(mock_test2)
     actual_tests = ts.countTestCases()
@@ -170,7 +170,7 @@ End Sub
 
 Sub testtsCountTestCasesZeroIfNoTests(t as object)
     'CountTestCases() returns 0 if no tests added
-    faketests = CreateObject("roArray")
+    faketests = CreateObject("roList")
     ts = brstNewTestSuite(faketests)
     actual_tests = ts.countTestCases()
     t.assertEqual(0, actual_tests)
