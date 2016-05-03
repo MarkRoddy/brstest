@@ -1,6 +1,6 @@
-brsttest - A unit testing framework for the BrightScript programming 
+brsttest - A unit testing framework for the BrightScript programming
 language used in development for the Roku Digital Video Player inspired
-by xUnit style testing systems.  
+by xUnit style testing systems.
 
 * Writing a Test Fixture
 Test fixtures must conform to the two following behaviors:
@@ -15,8 +15,8 @@ Sub testAddition(t as object)
 End Sub
 
 The 'test' prefix to the method name is required so that the testing
-framework may be able to discover the test in order to execute it, 
-and the 't' argument is the test case from which all assertions are 
+framework may be able to discover the test in order to execute it,
+and the 't' argument is the test case from which all assertions are
 performed.  If the prefix is missing the test will not be found and
 there for not executed.  And iff the argument signature is not which
 is expected, the test will fail as the incorrect number of arguments
@@ -41,9 +41,9 @@ BrightScript components such as roList, roArray and roAssociativeArray,
 is planned for a future release.
 
 * Identifying Files with Tests
-By default, brsttest assumes all files in the 'sources' directory 
-whose names begin with 'test' will contain test fixtures and parses 
-for named test cases.  As such any tests you wish to be executed 
+By default, brsttest assumes all files in the 'sources' directory
+whose names begin with 'test' will contain test fixtures and parses
+for named test cases.  As such any tests you wish to be executed
 should be in files that conform to this protocol.
 
 * Running Tests
@@ -52,22 +52,24 @@ directory.  Second, at which ever point you'd like to execute your
 tests call the BrsTestMain() subroutine.  All test files following
 the protocol described above will be parsed for test fixtures, and
 all tests found will be executed with their results being printed
-to the debug console.
+to the debug console. If an instace of roStreamSocket is passed to
+BrsTestMain then test output will be streamed to the socket as well
+as well as to the debug console.
 
 * Limitations
 Due to the nature of the BrightScript language some features found
-in traditional xUnit style frameworks are not present.  As the 
+in traditional xUnit style frameworks are not present.  As the
 BrightScript language evolves and expands some of these features
-will hopefully be added.  An incomplete list of typical xUnit 
+will hopefully be added.  An incomplete list of typical xUnit
 features which are not supported follows.
 
 1) Detailed Error Reporting:  Due to the nature of error handling
 within BrightScript, only a minimal amount of information about
-a failing test can be reported.  Currently, in the case of a 
+a failing test can be reported.  Currently, in the case of a
 failed assertion, only a message about the failure (such as the
 two values which are not equal) is displayed.  For test errors,
-a short description of the error in question is displayed.  
-Unfortunately, as there is no formal exception mechanism in  
+a short description of the error in question is displayed.
+Unfortunately, as there is no formal exception mechanism in
 BrightScript, information such as the line the error occured or
 a stacktrace can not be displayed.
 
@@ -75,7 +77,7 @@ a stacktrace can not be displayed.
 It has been a decision in the implementation of brstest to not
 support an object oriented approach to authoring test cases (
 collections of related test fixtures).  An intial prototype
-of brstest took this approach but was scrapped due to the 
+of brstest took this approach but was scrapped due to the
 overhead of having to write both the test fixture methods and
 support a 'constructor' which attached all of the methods
 to a created roAssociativeArray object.  If it is shown that
@@ -83,9 +85,8 @@ there is a significant demand for being able to write this
 style of tests, this decision will be re-evaluated.
 
 3) TestCase setUp/tearDown Methods
-Due to the divergance of brstest from traditional xUnit 
+Due to the divergance of brstest from traditional xUnit
 frameworks in the area of class based TestCases, setUp and
 tearDown methods are not currently supported.  If there is
 a high demand for these features, this decision will also
 be re-evaluated.
-
