@@ -1,12 +1,13 @@
 {
   "name": "brs-test",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "homepage": "https://github.com/MarkRoddy/brstest",
   "authors": [
     "https://github.com/MarkRoddy"
   ],
-  "description": "brsttest - A unit testing framework for the BrightScript programming",
-  "main": "language used in development for the Roku Digital Video Player inspired",
+  "description": "brsttest - A unit testing framework for the BrightScript programming,
+  language used in development for the Roku Digital Video Player",
+  "main": "main.brs",
   "moduleType": [
     "amd"
   ],

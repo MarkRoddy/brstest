@@ -33,9 +33,10 @@
 '  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 '  OTHER DEALINGS IN THE SOFTWARE.
 
+Sub BrsTestMain(socket=Invalid as Object, TestFilePrefix="Test" as string, TestMethodPrefix="test" as string, TestDirectory="pkg:/source" as string)
 
+    if socket <> Invalid AND socket.isConnected() then m.socket = socket
 
-Sub BrsTestMain(TestFilePrefix="Test" as string, TestMethodPrefix="test" as string, TestDirectory="pkg:/source" as string)
     'Run all test fixtures found in the package using
     'the standard naming conventions
     'Discovers and runs test fixtures based upon the supplied arguments
@@ -44,7 +45,6 @@ Sub BrsTestMain(TestFilePrefix="Test" as string, TestMethodPrefix="test" as stri
     runner=brstNewTextTestRunner()
     runner.run(suite)
 End Sub
-
 
 '====================
 'Begin Class TestResult
@@ -75,16 +75,32 @@ Sub brstTrInit()
     m.stop = brstTrStop
 EndSub
 
-Sub brstTrStartTest(test as object) 
+Sub brstTrStartTest(test as object)
     'Called when the given test is about to be run
     m.testsRun = m.testsRun + 1
 End Sub
 
-Sub brstTrStopTest(test):
+Sub brstTrStopTest(test)
     'Called when the given test has been run
-End Sub 
+End Sub
 
-Sub brstTrAddError(test as object, err as object):
+Sub brstTrLogToSocket(msg as String)
+  if m.socket <> Invalid AND m.socket.isConnected()
+    m.socket.sendStr(msg)
+  end if
+End Sub
+
+Sub brstPrint(msg as String, newLine=true)
+  if newLine
+    Print msg
+    brstTrLogToSocket(msg + " \r\n ")
+  else
+    Print msg;
+    brstTrLogToSocket(msg)
+  end if
+End Sub
+
+Sub brstTrAddError(test as object, err as object)
     'Called when an error has occurred. 'err' is a tuple of values as
     'returned by sys.exc_info().
     err_inf= CreateObject("roArray",2,false)
@@ -100,9 +116,9 @@ Sub brstTrAddFailure(test as object, err as object)
     err_inf[0]=test
     err_inf[1]=m.errToSting(err, test)
     m.failures.push(err_inf)
-End Sub 
+End Sub
 
-Sub brstTrAddSuccess(test as object):
+Sub brstTrAddSuccess(test as object)
     'Called when a test has completed successfully"
 End Sub
 
@@ -113,7 +129,7 @@ Function brstTrWasSuccessful() as object
     else
         return false
     end if
-End Function 
+End Function
 
 Sub brstTrStop()
     'Indicates that the tests should be aborted"
@@ -156,13 +172,13 @@ Function brstNewTestCase(Fixture as object) as object
     return new_case
 End Function
 
-Sub brstTcInit(Fixture as object)   
+Sub brstTcInit(Fixture as object)
 
     'Attributes
     m._Fixture = Fixture
     'this will be constructor argument in future version
-    m._PropegateErrors = false 
-    'm._PropegateErrors = true
+    m._PropegateErrors = false
+    ' m._PropegateErrors = true
 
     'Assertion methods which determine test failure
     m.fail = brstTcFail
@@ -209,7 +225,7 @@ Function brstTcCountTestCases() as Integer
     'of this object intends to run.
     'Always 1, as apposed to TestSuite objects
     return 1
-End Function 
+End Function
 
 Function brstTcShortDescription() as string
     'Returns a one-line description of the test, or empty string if no
@@ -252,7 +268,7 @@ Sub brstTcRun(result as object)
     if m.endedInFailure()
        result.addFailure(m,m.ErrorMessage)
     else if eval_result <> &hFC and eval_result <> &hE2 then
-       result.addError(m, ErrorMessageFromCode(eval_result)) 
+       result.addError(m, ErrorMessageFromCode(eval_result))
     else
         result.addSuccess(m)
     end if
@@ -318,7 +334,7 @@ End Sub
 'be outputted upon test failure
 Function brstTcValueToString(SrcValue as Object) as String
     'Converts an arbitrary value to a string representation
-    
+
     'A dispatch table would be better approach here than
     'this switch/case like approach, but one was attempted
     'and needed to be abandonded due to a bug in the only
@@ -423,7 +439,7 @@ Function brstTcRoArrayToString(SrcArray as Object, DisplayTrailingInvalid=False 
     first_entry = True
 
     'Purposely not using ifEnum interface for the roArray.
-    'Bug in Roku firmware causes crash when 
+    'Bug in Roku firmware causes crash when
     'iterating over array that has an uninitialized
     'element.  See discussion here:
     'http://forums.roku.com/viewtopic.php?f=34&t=25979
@@ -478,33 +494,33 @@ Function brstTcEqValues(Value1 as Object, Value2 as Object) as Boolean
         else if valtype = "roFunction" then
             return m.eqFunction(Value1, Value2)
         else
-            'todo: This isn't the best approach to 
-            'handling an unknown type, but will 
-            'suffice for now        
+            'todo: This isn't the best approach to
+            'handling an unknown type, but will
+            'suffice for now
             return False
-        end if    
+        end if
     end if
-End Function 
+End Function
 
 Function brstTcEqInteger(Value1 as Object, Value2 as Object) as Boolean
     'Compare to integer objects for equality
     return Value1 = Value2
-End Function 
+End Function
 
 Function brstTcEqFloat(Value1 as Object, Value2 as Object) as Boolean
     'Compare to float objects for equality
     return Value1 = Value2
-End Function 
+End Function
 
 Function brstTcEqString(Value1 as Object, Value2 as Object) as Boolean
     'Compare to string objects for equality
     return Value1 = Value2
-End Function 
+End Function
 
 Function brstTcEqBool(Value1 as Object, Value2 as Object) as Boolean
     'Compare to boolean objects for equality
     return Value1 = Value2
-End Function 
+End Function
 
 Function brstTcEqList(Value1 as Object, Value2 as Object) as Boolean
     'Compare to roList objects for equality
@@ -522,7 +538,7 @@ Function brstTcEqList(Value1 as Object, Value2 as Object) as Boolean
         end for
         return True
     end if
-End Function 
+End Function
 
 Function brstTcEqAssocArray(Value1 as Object, Value2 as Object) as Boolean
     'Compare to roAssociativeArray objects for equality
@@ -545,7 +561,7 @@ Function brstTcEqAssocArray(Value1 as Object, Value2 as Object) as Boolean
     else
         return True
     end if
-End Function 
+End Function
 
 Function brstTcEqArray(Value1 as Object, Value2 as Object) as Boolean
     'Compare to roArray objects for equality
@@ -563,7 +579,7 @@ Function brstTcEqArray(Value1 as Object, Value2 as Object) as Boolean
         end for
         return True
     end if
-End Function 
+End Function
 
 Function brstTcEqFunction(Value1 as Object, Value2 as Object) as Boolean
     'Compare two function pointers (?) for equality
@@ -587,7 +603,7 @@ Function brstNewTestSuite(tests as object) as object
     new_suite.addTest = brstTsAddTest
     new_suite.addTests = brstTsAddTests
     new_suite.run = brstTsRun
-    new_suite.toString = brstTsToString    
+    new_suite.toString = brstTsToString
     new_suite.addTests(tests)
 
     return new_suite
@@ -614,7 +630,7 @@ Function brstTsCountTestCases() as integer
 End Function
 
 Sub brstTsAddTest(test as object)
-    'Add a single test to be in the test suite    
+    'Add a single test to be in the test suite
     m._tests.push(test)
 End Sub
 
@@ -644,7 +660,7 @@ End Function
 
 '==========================
 'Begin Class TextTestResult
-'A 'sub-class' of the TestResult class which prints 
+'A 'sub-class' of the TestResult class which prints
 'the result of each test executed as it is reported
 Function brstNewTextTestResult(descriptions as object, verbosity as integer) as object
     new_result=CreateObject("roAssociativeArray")
@@ -757,16 +773,16 @@ Sub brstTtrPrintErrorList(flavour as string, errors as object)
         m.writeline(flavour + ": " + m.getDescription(test))
         m.writeline(m.separator2)
         m.writeline(err)
-        m.writeline("")
+      m.writeline("")
     end for
 end sub
 
 Sub brstTtrWrite(item as object)
-    print item; 
+    brstPrint(item, false)
 End Sub
 
 Sub brstTtrWriteline(item as object)
-    print item
+    brstPrint(item)
 End Sub
 'End Class TextTestResult
 '========================
@@ -797,36 +813,38 @@ Function brstTtrnMakeresult() as object
 End Function
 
 Function brstTtrnRun(test as object) as object
-    'Run a test case or suite and report their 
+    'Run a test case or suite and report their
     'result to the debug console
 
     'todo: Break this up into individual methods
     result = m.makeResult()
     test.run(result)
     result.printErrors()
-    print result.separator2
+    brstPrint(result.separator2)
     testsrun = result.testsRun
-    print "Ran" + Str(testsrun) + " tests" + chr(10)
-    
+    brstPrint("Ran" + Str(testsrun) + " tests" + chr(10))
     if not result.wasSuccessful() then
-        print "FAILED (";
+        brstPrint("FAILED (")
         failed=result.failures.Count()
         errored=result.errors.Count()
-        if failed <> 0 then print "failures=" + Stri(failed);
+        if failed <> 0
+            brstPrint("failures=" + Stri(failed))
+        end if
         if errored <> 0 then
-            if failed <> 0 then print ", ";
-            print "errors=" + Stri(errored);
-            print ")"
+            if failed <> 0
+                brstPrint(", ")
+            end if
+            brstPrint("errors=" + Stri(errored))
+            brstPrint(")")
         else
-            print ")"
+            brstPrint(")")
         end if
     else:
-        print "OK"
+        brstPrint("OK")
     end if
-    print ""
+    brstPrint("")
     return result
-
-End Function    
+End Function
 'End Class TextTestResult
 '========================
 
@@ -869,7 +887,7 @@ Function brstTlSuiteFromDirectory(fromdirectory as String) as object
 End Function
 
 Function brstTlFixturesFromDirectory(fromdirectory as String) as object
-    'Returns an enumerable of TestFixture objects from a 
+    'Returns an enumerable of TestFixture objects from a
     'a directory containing test files
     ret = CreateObject("roList")
     for each file in m.findTestScripts(fromdirectory)
@@ -934,7 +952,7 @@ Function brstTlCompileScript(scriptpath as string) as boolean
     'Compile a script and return True if the compilation
     'was successful
     Run(scriptpath)
-    el=GetLastRunCompileError() 
+    el=GetLastRunCompileError()
     if el=invalid then
         return True
     else
@@ -979,7 +997,7 @@ Function brstTlFixturesFromScriptContents(scriptstr as string, scriptpath as str
             fname = tokens[1]
             tokens = fname.Tokenize("(")
             fname = tokens[0]
-            if UCase(Left(fname, len(m.testMethodPrefix))) = UCase(m.testMethodPrefix) then 
+            if UCase(Left(fname, len(m.testMethodPrefix))) = UCase(m.testMethodPrefix) then
                 eval("fobj=" + fname)
                 fixt = brstNewTestFixture(fobj, fname, "", scriptpath)
                 fixtures.AddTail(fixt)
@@ -1025,5 +1043,3 @@ Function AssocArrayCount(aa as object) as Integer
     end for
     return i
 End Function
-
-
