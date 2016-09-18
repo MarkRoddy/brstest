@@ -33,7 +33,7 @@
 '  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 '  OTHER DEALINGS IN THE SOFTWARE.
 
-Sub BrsTestMain(socket=Invalid as Object, TestFilePrefix="Test" as string, TestMethodPrefix="test" as string, TestDirectory="pkg:/source" as string)
+Sub BrsTestMain(PropagateErrors=false as Boolean, socket=Invalid as Object, TestFilePrefix="Test" as string, TestMethodPrefix="test" as string, TestDirectory="pkg:/source" as string)
 
     if socket <> Invalid AND socket.isConnected() then m.socket = socket
 
@@ -41,7 +41,7 @@ Sub BrsTestMain(socket=Invalid as Object, TestFilePrefix="Test" as string, TestM
     'the standard naming conventions
     'Discovers and runs test fixtures based upon the supplied arguments
     tl = brstNewTestLoader(TestFilePrefix, TestMethodPrefix)
-    suite=tl.suiteFromDirectory(TestDirectory)
+    suite=tl.suiteFromDirectory(TestDirectory, PropagateErrors)
     runner=brstNewTextTestRunner()
     runner.run(suite)
 End Sub
@@ -165,20 +165,19 @@ End Function
 'A class that manages running a single test fixture as well
 'as determining it's outcome.  An instance of this class is
 'passed to each test fixture method.
-Function brstNewTestCase(Fixture as object) as object
+Function brstNewTestCase(Fixture as object, PropagateErrors=false as Boolean) as object
     new_case=CreateObject("roAssociativeArray")
     new_case.init = brstTcInit
-    new_case.init(Fixture)
+    new_case.init(Fixture, PropagateErrors)
     return new_case
 End Function
 
-Sub brstTcInit(Fixture as object)
+Sub brstTcInit(Fixture as object, PropagateErrors=false as Boolean)
 
     'Attributes
     m._Fixture = Fixture
     'this will be constructor argument in future version
-    m._PropegateErrors = false
-    ' m._PropegateErrors = true
+    m._PropegateErrors = PropagateErrors
 
     'Assertion methods which determine test failure
     m.fail = brstTcFail
@@ -199,24 +198,19 @@ Sub brstTcInit(Fixture as object)
     'String Casting Functionality
     m.valueToString = brstTcValueToString
     m.assocArrayToString = brstTcAssocArrayToString
-    m.integerToString = brstTcIntegerToString
-    m.floatToString = brstTcFloatToString
+    m.numericToString = brstTcNumericToString
     m.stringToString = brstTcStringToString
     m.booleanToString = brstTcBooleanToString
     m.roListToString = brstTcRoListToString
     m.roArrayToString = brstTcRoArrayToString
+    m.roFunctionToString = brstTcRoFunctionToString
     m.roInvalidToString = brstTcRoInvalidToString
 
     'Type Comparison Functionality
+    m.isNumericType = brstTcIsNumeric
     m.eqValues = brstTcEqValues
-    m.eqIntegers = brstTcEqInteger
-    m.eqFloats = brstTcEqFloat
-    m.eqStrings = brstTcEqString
-    m.eqBools = brstTcEqBool
-    m.eqLists = brstTcEqList
+    m.eqArrayOrList = brstTcEqArrayOrList
     m.eqAssocArrays = brstTcEqAssocArray
-    m.eqArrays = brstTcEqArray
-    m.eqFunction = brstTcEqFunction
 
 End Sub
 
@@ -342,10 +336,8 @@ Function brstTcValueToString(SrcValue as Object) as String
     'for more information on the issue:
     'http://forums.roku.com/viewtopic.php?f=34&t=27338
     value_type = type(SrcValue)
-    if value_type = "roInt" then
-        return m.integerToString(SrcValue)
-    else if value_type = "roFloat" then
-        return m.floatToString(SrcValue)
+    if m.isNumericType(value_type)
+        return m.numericToString(SrcValue)
     else if value_type = "roString" then
         return m.stringToString(SrcValue)
     else if value_type = "roBoolean" then
@@ -356,6 +348,8 @@ Function brstTcValueToString(SrcValue as Object) as String
         return m.assocArrayToString(SrcValue)
     else if value_type = "roArray" then
         return m.roArrayToString(SrcValue)
+    else if value_type = "roFunction" then
+        return m.roFunctionToString(SrcValue)
     else if value_type = "roInvalid" then
         return m.roInvalidToString(SrcValue)
     else
@@ -363,14 +357,9 @@ Function brstTcValueToString(SrcValue as Object) as String
     end if
 End Function
 
-Function brstTcIntegerToString(SrcInt as Object) as String
-    'Converts an roInt to a string
-    return SrcInt.ToStr()
-End Function
-
-Function brstTcFloatToString(SrcFloat as Object) as String
-    'Converts an roFloat object to a string
-    return Box(Str(SrcFloat.GetFloat())).Trim()
+Function brstTcNumericToString(SrcNumeric as Object) as String
+    'Converts a numeric literal to a string
+    return SrcNumeric.ToStr()
 End Function
 
 Function brstTcStringToString(SrcStr as Object) as String
@@ -387,6 +376,11 @@ Function brstTcBooleanToString(SrcBool as Object) as String
     else
         return "False"
     end if
+End Function
+
+Function brstTcRoFunctionToString(SrcFunction as Object) as String
+    'Convert roFunction value to string
+    return SrcFunction.toStr()
 End Function
 
 Function brstTcRoInvalidToString(InvalidObj as Object) as String
@@ -418,7 +412,8 @@ Function brstTcAssocArrayToString(SrcAssocArray as Object) as String
     'Converts an roAssociativeArray to a string representation
     strvalue = "{ "
     first_entry = True
-    for each k in SrcAssocArray
+    keys = SrcAssocArray.keys()
+    for each k in keys
         if not first_entry then
             strvalue = strvalue + ", "
         else
@@ -460,69 +455,28 @@ End Function
 Function brstTcEqValues(Value1 as Object, Value2 as Object) as Boolean
     'Compare two arbtrary values to eachother
 
-    'Upcast int to float, if other is float
-    if type(Value1) = "roFloat" and type(Value2) = "roInt"
-        Value2 = box(Cdbl(Value2))
-    else if type(Value2) = "roFloat" and type(Value1) = "roInt"
-        Value1 = box(Cdbl(Value1))
-    end if
+    valtype = type(Value1)
 
-    if type(Value1) <> type(Value2) then
-        return False
-    else
-        'A dispatch table would be better approach here than
-        'this switch/case like approach, but one was attempted
-        'and needed to be abandonded due to a bug in the only
-        'mechinism of doing so.  See the following forum thread
-        'for more information on the issue:
-        'http://forums.roku.com/viewtopic.php?f=34&t=27338
-        valtype = type(Value1)
-        if valtype = "roInt" then
-            return m.eqIntegers(Value1, Value2)
-        else if valtype = "roFloat" then
-            return m.eqFloats(Value1, Value2)
-        else if valtype = "roString" then
-            return m.eqStrings(Value1, Value2)
-        else if valtype = "roBoolean" then
-            return m.eqBools(Value1, Value2)
-        else if valtype = "roList" then
-            return m.eqLists(Value1, Value2)
-        else if valtype = "roAssociativeArray" then
+    if (m.isNumericType(valType) AND m.isNumericType(type(Value2)))
+        return Value1 = Value2
+    else if valtype = type(Value2)
+        if valtype = "roArray" or valtype = "roList"
+            return m.eqArrayOrList(Value1, Value2)
+        else if valtype = "roAssociativeArray"
             return m.eqAssocArrays(Value1, Value2)
-        else if valtype = "roArray" then
-            return m.eqArrays(Value1, Value2)
-        else if valtype = "roFunction" then
-            return m.eqFunction(Value1, Value2)
         else
-            'todo: This isn't the best approach to
-            'handling an unknown type, but will
-            'suffice for now
-            return False
+            return Value1 = Value2
         end if
     end if
+
+    return False
 End Function
 
-Function brstTcEqInteger(Value1 as Object, Value2 as Object) as Boolean
-    'Compare to integer objects for equality
-    return Value1 = Value2
+Function brstTcIsNumeric(valType as String) as Boolean
+    return valType = "roInt" or valType = "roFloat" or valType = "roDouble" or valType = "Double" or valType = "LongInteger"
 End Function
 
-Function brstTcEqFloat(Value1 as Object, Value2 as Object) as Boolean
-    'Compare to float objects for equality
-    return Value1 = Value2
-End Function
-
-Function brstTcEqString(Value1 as Object, Value2 as Object) as Boolean
-    'Compare to string objects for equality
-    return Value1 = Value2
-End Function
-
-Function brstTcEqBool(Value1 as Object, Value2 as Object) as Boolean
-    'Compare to boolean objects for equality
-    return Value1 = Value2
-End Function
-
-Function brstTcEqList(Value1 as Object, Value2 as Object) as Boolean
+Function brstTcEqArrayOrList(Value1 as Object, Value2 as Object) as Boolean
     'Compare to roList objects for equality
     l1 = Value1.Count()
     l2 = Value2.Count()
@@ -542,48 +496,22 @@ End Function
 
 Function brstTcEqAssocArray(Value1 as Object, Value2 as Object) as Boolean
     'Compare to roAssociativeArray objects for equality
-    len1 = 0
-    for each k in Value1
-        len1 = len1 + 1
-        if not Value2.DoesExist(k) then
-            return False
-        else
-            v1 = Value1[k]
-            v2 = Value2[k]
-            if not m.eqValues(v1, v2) then
+    if Value1.count() = Value2.count()
+        for each k in Value1
+            if not Value2.DoesExist(k) then
                 return False
-            end if
-        end if
-    end for
-    len2 = AssocArrayCount(Value2)
-    if len1 <> len2 then
-        return False
-    else
-        return True
-    end if
-End Function
-
-Function brstTcEqArray(Value1 as Object, Value2 as Object) as Boolean
-    'Compare to roArray objects for equality
-    l1 = Value1.Count()
-    l2 = Value2.Count()
-    if not l1 = l2 then
-        return False
-    else
-        for i = 0 to l1 - 1 step 1
-            v1 = Value1[i]
-            v2 = Value2[i]
-            if not m.eqValues(v1, v2) then
-                return False
+            else
+                v1 = Value1[k]
+                v2 = Value2[k]
+                if not m.eqValues(v1, v2) then
+                    return False
+                end if
             end if
         end for
         return True
+    else
+        return False
     end if
-End Function
-
-Function brstTcEqFunction(Value1 as Object, Value2 as Object) as Boolean
-    'Compare two function pointers (?) for equality
-    return Value1 = Value2
 End Function
 
 
@@ -874,12 +802,12 @@ Function brstNewTestLoader(TestFilePrefix as string, TestMethodPrefix as string)
     return ldr
 End Function
 
-Function brstTlSuiteFromDirectory(fromdirectory as String) as object
+Function brstTlSuiteFromDirectory(fromdirectory as String, PropagateErrors=false as Boolean) as object
     'Returns a test suite containing all test fixtures found in
     'the specified path
     cases = CreateObject("roList")
     for each fixture in m.fixturesFromDirectory(fromdirectory)
-        case = m.NewTestCase(fixture)
+        case = m.NewTestCase(fixture, PropagateErrors)
         cases.addtail(case)
     end for
     suite = m.NewSuite(cases)
@@ -1031,15 +959,4 @@ err_map.AddReplace("Function Call Operator ( ) attempted on non-function.", &he0
         end if
     end for
     return "Unknown Error: " + str(err_code)
-End Function
-
-'Have posted to the Roku sdk message board regarding the need for this function,
-'retaining for the time being to determine if it's necessary
-Function AssocArrayCount(aa as object) as Integer
-    'Returns the number of entries in an roAssociativeArray
-    i = 0
-    for each k in aa
-        i = i + 1
-    end for
-    return i
 End Function
