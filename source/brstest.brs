@@ -460,7 +460,7 @@ Function brstTcEqValues(Value1 as Object, Value2 as Object) as Boolean
     if (m.isNumericType(valType) AND m.isNumericType(type(Value2)))
         return Value1 = Value2
     else if valtype = type(Value2)
-        if valtype = "roArray" or valtype = "roList"
+        if valtype = "roArray" or valtype = "roList" or valType = "roByteArray"
             return m.eqArrayOrList(Value1, Value2)
         else if valtype = "roAssociativeArray"
             return m.eqAssocArrays(Value1, Value2)
