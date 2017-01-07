@@ -198,6 +198,7 @@ Sub brstTcInit(Fixture as object, PropagateErrors=false as Boolean)
     'String Casting Functionality
     m.valueToString = brstTcValueToString
     m.assocArrayToString = brstTcAssocArrayToString
+    m.nodeToString = brstTcNodeToString
     m.numericToString = brstTcNumericToString
     m.stringToString = brstTcStringToString
     m.booleanToString = brstTcBooleanToString
@@ -346,6 +347,8 @@ Function brstTcValueToString(SrcValue as Object) as String
         return m.roListToString(SrcValue)
     else if value_type = "roAssociativeArray" then
         return m.assocArrayToString(SrcValue)
+    else if value_type = "roSGNode" then
+        return m.nodeToString(SrcValue)
     else if value_type = "roArray" then
         return m.roArrayToString(SrcValue)
     else if value_type = "roFunction" then
@@ -408,6 +411,33 @@ Function brstTcRoListToString(SrcList as Object) as String
     return strvalue
 End Function
 
+Function brstTcNodeToString(SrcNode as Object) as String
+    'Converts an roSGNode to a string representation
+    strvalue = "{ "
+    first_entry = True
+    keys = SrcNode.getFields()
+    for each k in keys
+        if not first_entry then
+            strvalue = strvalue + ", "
+        else
+            first_entry = False
+        end if
+        strvalue = strvalue + k
+        strvalue = strvalue + " : "
+
+        'handle basic self-refs
+        if type(SrcNode[k]) = "roSGNode" and SrcNode[k].isSameNode(SrcNode) then
+            strvalue = strvalue + "(self)"
+        else
+            strvalue = strvalue + m.ValueToString(SrcNode[k])
+        end if
+    end for
+    strvalue = strvalue + " }"
+    return strvalue
+    return "{}"
+End Function
+
+
 Function brstTcAssocArrayToString(SrcAssocArray as Object) as String
     'Converts an roAssociativeArray to a string representation
     strvalue = "{ "
@@ -464,6 +494,8 @@ Function brstTcEqValues(Value1 as Object, Value2 as Object) as Boolean
             return m.eqArrayOrList(Value1, Value2)
         else if valtype = "roAssociativeArray"
             return m.eqAssocArrays(Value1, Value2)
+        else if valtype = "roSGNode"
+            return Value1.isSameNode(Value2)
         else
             return Value1 = Value2
         end if

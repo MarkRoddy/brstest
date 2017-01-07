@@ -1275,3 +1275,37 @@ Sub testTestCase_EqValues_Array_NotEqual_SameLength_DifferentValues(t as object)
     result = t.eqValues(x, y)
     t.assertFalse(result)
 End Sub
+
+Sub testTestCase_EqReference_Node_AreEqual(t as object)
+    'True if both nodes have the same reference -- not just all the same fields
+    x = CreateObject("roSGNode", "Node")
+    y = x
+    result = t.eqValues(x, y)
+    t.assertTrue(result)
+End Sub
+
+Sub testTestCase_EqValues_Node_NotEqual_DifferentReference(t as object)
+    'False if two nodes have a different reference, regardless of their field values
+    x = CreateObject("roSGNode", "Node")
+    y = CreateObject("roSGNode", "Node")
+    result = t.eqValues(x, y)
+    t.assertFalse(result)
+End Sub
+
+Sub testTestCase_Node_NotEqual_DifferentValues(t as object)
+    'False if two nodes have a different reference, regardless of their field values
+    x = CreateObject("roSGNode", "Node")
+    x.addFields( {"foo" : "bar"} )
+    y = CreateObject("roSGNode", "Node")
+    x.addFields( {"foo" : "baz"} )
+    result = t.eqValues(x, y)
+    t.assertFalse(result)
+End Sub
+
+Sub testTestCase_Node_EqReference_CircularRef_Basic(t as object)
+    'True if two nodes have the same reference, even if one contains a reference to itself
+    x = CreateObject("roSGNode", "Node")
+    x.addFields( {"foo" : x} )
+    result = t.eqValues(x, x)
+    t.assertTrue(result)
+End Sub
