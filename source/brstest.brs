@@ -939,24 +939,94 @@ End Function
 
 Function ErrorMessageFromCode(err_code as integer) as string
     'Translate a BrightScript error code as returned by eval() into a meaningful
-    'error message
-err_map = CreateObject("roAssociativeArray")
-err_map.AddReplace("Use of uninitialized variable (ERR_USE_OF_UNINIT_VAR)",&hE9)
-err_map.AddReplace("ERR_DIV_ZERO", &h14)
-err_map.AddReplace("Type Mismatch (ERR_TM)", &h18)
-err_map.AddReplace("ERR_USE_OF_UNINIT_VAR",  &hE9)
-err_map.AddReplace("Member function not found in BrightScript Component or interface (ERR_RO2)", &hF4)
-err_map.AddReplace("'Dot' Operator attempted with invalid BrightScript Component or interface reference (ERR_RO4)", &hEC)
-err_map.AddReplace("ERR_SYNTAX", 2)
-err_map.AddReplace("ERR_NORMAL_END (Not an error)",&hFC)
-err_map.AddReplace("ERR_VALUE_RETURN (Not an error)", &hE2)
-err_map.AddReplace("Wrong number of function parameters.", &hF1)
-err_map.AddReplace("Explicit 'STOP' command encountered", &hF7)
-err_map.AddReplace("Function Call Operator ( ) attempted on non-function.", &he0)
-    for each e in err_map
-        if err_map[e] = err_code then
-           return e
-        end if
-    end for
-    return "Unknown Error: " + str(err_code)
+    'error message.
+    'Ref: https://forums.roku.com/viewtopic.php?t=33193#p211138
+    if m.err_map = invalid then
+        m.err_map = {}
+        m.err_map[str(&hfc)] = "ERR_OKAY"
+        m.err_map[str(&hFC)] = "[Not an error] Normal, but terminate execution; END, shell 'exit', window closed, etc. (ERR_NORMAL_END)"
+        m.err_map[str(&hE2)] = "[Not an error] Return executed, and a value returned on the stack (ERR_VALUE_RETURN)"
+        m.err_map[str(&hFE)] = "ERR_INTERNAL"
+        m.err_map[str(&hFD)] = "Opcode that Roku does not handle (ERR_UNDEFINED_OPCD)"
+        m.err_map[str(&hFB)] = "Expression operator that Roku does not handle (ERR_UNDEFINED_OP)"
+        m.err_map[str(&hFA)] = "ERR_MISSING_PARN"
+        m.err_map[str(&hF9)] = "Nothing on stack to pop (ERR_STACK_UNDER)"
+        m.err_map[str(&hF8)] = "scriptBreak() called (ERR_BREAK)"
+        m.err_map[str(&hF7)] = "Explicit 'STOP' command encountered (ERR_STOP)"
+        m.err_map[str(&hF6)] = "bscNewComponent failed because object class not found (ERR_RO0)"
+        m.err_map[str(&hF5)] = "ro function call does not have the right number of parameters (ERR_RO1)"
+        m.err_map[str(&hF4)] = "Member function not found in BrightScript Component or interface (ERR_RO2)"
+        m.err_map[str(&hF3)] = "Interface not a member of object (ERR_RO3)"
+        m.err_map[str(&hF2)] = "Too many function parameters for BrightScript to handle (ERR_TOO_MANY_PARAM)"
+        m.err_map[str(&hF1)] = "Wrong number of function parameters (ERR_WRONG_NUM_PARAM)"
+        m.err_map[str(&hF0)] = "Function returns a value, but is ignored (ERR_RVIG)"
+        m.err_map[str(&hEF)] = "Non-printable value (ERR_NOTPRINTABLE)"
+        m.err_map[str(&hEE)] = "Tried to Wait on a function without the ifMessagePort interface (ERR_NOTWAITABLE)"
+        m.err_map[str(&hED)] = "Interface calls from rotINTERFACE must be static (ERR_MUST_BE_STATIC)"
+        m.err_map[str(&hEC)] = "'Dot' Operator attempted with invalid BrightScript Component or interface reference (ERR_RO4)"
+        m.err_map[str(&hEB)] = "Operation on two typeless operands attempted (ERR_NOTYPEOP)"
+        m.err_map[str(&hE9)] = "Use of uninitialized variable (ERR_USE_OF_UNINIT_VAR)"
+        m.err_map[str(&hE8)] = "Non-numeric array index (ERR_TM2)"
+        m.err_map[str(&hE7)] = "ERR_ARRAYNOTDIMMED"
+        m.err_map[str(&hE6)] = "Uninitialized reference to SUB (ERR_USE_OF_UNINIT_BRSUBREF)"
+        m.err_map[str(&hE5)] = "ERR_MUST_HAVE_RETURN"
+        m.err_map[str(&hE4)] = "Invalid left side of expression (ERR_INVALID_LVALUE)"
+        m.err_map[str(&hE3)] = "Invalid number of array indices (ERR_INVALID_NUM_ARRAY_IDX)"
+        m.err_map[str(&hE1)] = "ERR_UNICODE_NOT_SUPPORTED"
+        m.err_map[str(&hE0)] = "Function Call Operator ( ) attempted on non-function (ERR_NOTFUNOPABLE)"
+        m.err_map[str(&hDF)] = "Stack overflow (ERR_STACK_OVERFLOW)"
+        m.err_map[str(&h02)] = "Syntax error (ERR_SYNTAX)"
+        m.err_map[str(&h14)] = "Divide by zero (ERR_DIV_ZERO)"
+        m.err_map[str(&h0E)] = "ERR_MISSING_LN"
+        m.err_map[str(&h0C)] = "ERR_OUTOFMEM"
+        m.err_map[str(&h1C)] = "ERR_STRINGTOLONG"
+        m.err_map[str(&h18)] = "Type Mismatch (ERR_TM)"
+        m.err_map[str(&h1A)] = "Out of string space (ERR_OS)"
+        m.err_map[str(&h04)] = "Return without Gosub (ERR_RG)"
+        m.err_map[str(&h00)] = "Next statement encountered without matching For (ERR_NF)"
+        m.err_map[str(&h08)] = "Invalid parameter passed to function or array (ERR_FC)"
+        m.err_map[str(&h12)] = "Attempted to redim an array (ERR_DD)"
+        m.err_map[str(&h10)] = "Array subscript out of bounds (ERR_BS)"
+        m.err_map[str(&h06)] = "Out of data during READ operation (ERR_OD)"
+        m.err_map[str(&h20)] = "Continue not allowed (ERR_CN)"
+        m.err_map[str(&hBF)] = "EndWhile statement encountered without matching While (ERR_NW)"
+        m.err_map[str(&hBE)] = "While statement encountered without matching EndWhile (ERR_MISSING_ENDWHILE)"
+        m.err_map[str(&hBC)] = "If statement encountered without matching EndIf (ERR_MISSING_ENDIF)"
+        m.err_map[str(&hBB)] = "No line number found (ERR_NOLN)"
+        m.err_map[str(&hBA)] = "Line number sequence error (ERR_LNSEQ)"
+        m.err_map[str(&hB9)] = "Error loading a file (ERR_LOADFILE)"
+        m.err_map[str(&hB8)] = "'Match' statement did not match (ERR_NOMATCH)"
+        m.err_map[str(&hB7)] = "String being compiled ended unexpectedly - missing end of block? (ERR_UNEXPECTED_EOF)"
+        m.err_map[str(&hB6)] = "Variable on NEXT does not match the corresponding FOR (ERR_FOR_NEXT_MISMATCH)"
+        m.err_map[str(&hB5)] = "ERR_NO_BLOCK_END"
+        m.err_map[str(&hB4)] = "Label defined more than once (ERR_LABELTWICE)"
+        m.err_map[str(&hB3)] = "Literal string does not have ending quote (ERR_UNTERMED_STRING)"
+        m.err_map[str(&hB2)] = "ERR_FUN_NOT_EXPECTED"
+        m.err_map[str(&hB1)] = "ERR_TOO_MANY_CONST"
+        m.err_map[str(&hB0)] = "ERR_TOO_MANY_VAR"
+        m.err_map[str(&hAF)] = "ERR_EXIT_WHILE_NOT_IN_WHILE"
+        m.err_map[str(&hAE)] = "ERR_INTERNAL_LIMIT_EXCEDED"
+        m.err_map[str(&hAD)] = "ERR_SUB_DEFINED_TWICE"
+        m.err_map[str(&hAC)] = "ERR_NOMAIN"
+        m.err_map[str(&hAB)] = "ERR_FOREACH_INDEX_TM"
+        m.err_map[str(&hAA)] = "ERR_RET_CANNOT_HAVE_VALUE"
+        m.err_map[str(&hA9)] = "ERR_RET_MUST_HAVE_VALUE"
+        m.err_map[str(&hA8)] = "ERR_FUN_MUST_HAVE_RET_TYPE"
+        m.err_map[str(&hA7)] = "ERR_INVALID_TYPE"
+        m.err_map[str(&hA6)] = "No longer supported (ERR_NOLONGER)"
+        m.err_map[str(&hA5)] = "ERR_EXIT_FOR_NOT_IN_FOR"
+        m.err_map[str(&hA4)] = "ERR_MISSING_INITILIZER"
+        m.err_map[str(&hA3)] = "ERR_IF_TOO_LARGE"
+        m.err_map[str(&hA2)] = "ERR_RO_NOT_FOUND"
+        m.err_map[str(&hA1)] = "ERR_TOO_MANY_LABELS"
+        m.err_map[str(&hA0)] = "ERR_VAR_CANNOT_BE_SUBNAME"
+        m.err_map[str(&h9F)] = "ERR_INVALID_CONST_NAME"
+    end if
+
+    errMsg = m.err_map[str(err_code)]
+    if errMsg = invalid then
+        errMsg = "Unknown Error: " + str(err_code)
+    end if
+
+    return errMsg
 End Function
