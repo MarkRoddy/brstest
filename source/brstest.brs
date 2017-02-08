@@ -33,16 +33,16 @@
 '  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 '  OTHER DEALINGS IN THE SOFTWARE.
 
-Sub BrsTestMain(PropagateErrors=false as Boolean, socket=Invalid as Object, TestFilePrefix="Test" as string, TestMethodPrefix="test" as string, TestDirectory="pkg:/source" as string)
+Sub BrsTestMain(PropagateErrors=False as Boolean, Socket=Invalid as Object, TestFilePrefix="Test" as string, TestMethodPrefix="test" as string, TestDirectory="pkg:/source" as string, Verbosity=1 as Integer)
 
-    if socket <> Invalid AND socket.isConnected() then m.socket = socket
+     if socket <> Invalid AND socket.isConnected() then m.socket = socket
 
     'Run all test fixtures found in the package using
     'the standard naming conventions
     'Discovers and runs test fixtures based upon the supplied arguments
     tl = brstNewTestLoader(TestFilePrefix, TestMethodPrefix)
     suite=tl.suiteFromDirectory(TestDirectory, PropagateErrors)
-    runner=brstNewTextTestRunner()
+    runner=brstNewTextTestRunner(Verbosity)
     runner.run(suite)
 End Sub
 
@@ -177,7 +177,7 @@ Sub brstTcInit(Fixture as object, PropagateErrors=false as Boolean)
     'Attributes
     m._Fixture = Fixture
     'this will be constructor argument in future version
-    m._PropegateErrors = PropagateErrors
+    m._PropagateErrors = PropagateErrors
 
     'Assertion methods which determine test failure
     m.fail = brstTcFail
@@ -253,7 +253,7 @@ Sub brstTcRun(result as object)
     result.startTest(m)
     testMethod = m._Fixture.TestFunc
 
-    if m._PropegateErrors then
+    if m._propagateErrors then
         testMethod(m)
         eval_result = &hFC
     else
@@ -754,10 +754,11 @@ End Sub
 'Begin Class TextTestResult
 'A class which runs tests and reports their results in a
 'textual format to the debug console
-Function brstNewTextTestRunner() as object
+'verbosity: if <2 Do not print method names; if >1 print the method names
+Function brstNewTextTestRunner(verbosity as Integer) as object
     new_runner = CreateObject("roAssociativeArray")
     new_runner.init = brstTtrnInit
-    new_runner.init(1,1)
+        new_runner.init(1,verbosity)
     return new_runner
 End Function
 
@@ -950,7 +951,7 @@ Function brstTlFixturesFromScriptContents(scriptstr as string, scriptpath as str
         boxedline = box(UCase(line))
         boxedline.Trim()
         fobj = invalid
-        if UCase("Function") = boxedline.Left(8) or UCase("Sub") = boxedline.Left(3) then
+        if UCase("Function") = boxedline.trim().Left(8) or UCase("Sub") = boxedline.trim().Left(3) then
             func_def = box(line)
             func_def.Trim()
             tokens = func_def.Tokenize(chr(32))
